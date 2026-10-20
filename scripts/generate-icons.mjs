@@ -5,15 +5,15 @@ import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+const bgFile = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'icon-background.png');
 const out = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../public');
 await mkdir(out, { recursive: true });
 
 // `scale` shrinks the artwork toward the centre, used for the maskable icon's safe zone.
-function svg({ scale = 1, rounded = false }) {
+function svg({ scale = 1 }) {
   const t = (512 - 512 * scale) / 2;
   return Buffer.from(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" ${rounded ? 'rx="112"' : ''} fill="#000"/>
   <g transform="translate(${t} ${t}) scale(${scale})">
     <rect x="88" y="88" width="154" height="154" rx="38" fill="#FF9F0A"/>
     <rect x="270" y="88" width="154" height="154" rx="38" fill="#818CF8"/>
@@ -38,6 +38,12 @@ const jobs = [
   ['apple-touch-icon.png', 180, svg({})],
 ];
 for (const [name, size, buf] of jobs) {
-  await sharp(buf, { density: 384 }).resize(size, size).png().toFile(path.join(out, name));
+  const glyphs = await sharp(buf, { density: 384 }).resize(size, size).png().toBuffer();
+  await sharp(bgFile)
+    .resize(size, size, { fit: 'cover' })
+    .composite([{ input: glyphs }])
+    .flatten()
+    .png()
+    .toFile(path.join(out, name));
   console.log('wrote', name);
 }
