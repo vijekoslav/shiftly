@@ -78,7 +78,7 @@ export default function App() {
 
       <nav
         aria-label="Primary"
-        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-[max(calc(env(safe-area-inset-bottom)*0.45),6px)] backdrop-blur-xl"
+        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-[max(calc(env(safe-area-inset-bottom)*0.3),8px)] backdrop-blur-xl"
       >
         <ul className="mx-auto flex max-w-md">
           {TABS.map(({ id, label, icon: Icon }) => {
@@ -89,7 +89,7 @@ export default function App() {
                   type="button"
                   onClick={() => changeTab(id)}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-[52px] w-full flex-col items-center justify-center gap-0.5 pt-1.5 text-[10px] font-medium transition-colors ${
+                  className={`flex min-h-11 w-full flex-col items-center justify-start gap-0.5 pt-2 text-[10px] font-medium transition-colors ${
                     active ? 'text-accent' : 'text-label-2'
                   }`}
                 >
