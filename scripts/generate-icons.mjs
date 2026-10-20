@@ -35,7 +35,7 @@ const jobs = [
   ['pwa-512x512.png', 512, svg({})],
   ['maskable-512x512.png', 512, svg({ scale: 0.72 })],
   // iOS applies its own rounded mask, so the touch icon must be full-bleed.
-  ['apple-touch-icon.png', 180, svg({})],
+  ['apple-touch-icon-v2.png', 180, svg({})],
 ];
 for (const [name, size, buf] of jobs) {
   const glyphs = await sharp(buf, { density: 384 }).resize(size, size).png().toBuffer();

@@ -20,7 +20,7 @@ export default defineConfig(({ command, isPreview }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'prompt',
-        includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
+        includeAssets: ['apple-touch-icon-v2.png', 'favicon.svg'],
         manifest: {
           name: 'Shiftly',
           short_name: 'Shiftly',
