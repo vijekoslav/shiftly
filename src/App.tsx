@@ -184,7 +184,8 @@ function useConnectivityToasts(toast: (message: string) => void) {
 function useFullScreenHeight() {
   useEffect(() => {
     const apply = () => {
-      const portrait = window.innerHeight >= window.innerWidth;
+      const installed = (navigator as Navigator & { standalone?: boolean }).standalone === true;
+      const portrait = installed && window.innerHeight >= window.innerWidth;
       const height = portrait ? Math.max(window.innerHeight, window.screen.height) : window.innerHeight;
       document.documentElement.style.setProperty('--app-h', `${height}px`);
     };
