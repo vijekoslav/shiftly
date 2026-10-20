@@ -78,7 +78,7 @@ export default function App() {
 
       <nav
         aria-label="Primary"
-        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-[max(calc(env(safe-area-inset-bottom)*0.3),8px)] backdrop-blur-xl"
+        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-1 backdrop-blur-xl"
       >
         <ul className="mx-auto flex max-w-md">
           {TABS.map(({ id, label, icon: Icon }) => {
