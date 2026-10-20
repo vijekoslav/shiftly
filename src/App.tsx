@@ -53,7 +53,7 @@ export default function App() {
   };
 
   return (
-    <div className="mx-auto flex h-full max-w-[1100px] flex-col bg-bg">
+    <div className="fixed inset-0 mx-auto flex max-w-[1100px] flex-col bg-bg">
       <main
         ref={scroller}
         id="main-scroll"
@@ -78,7 +78,7 @@ export default function App() {
 
       <nav
         aria-label="Primary"
-        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
+        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-[max(calc(env(safe-area-inset-bottom)*0.45),6px)] backdrop-blur-xl"
       >
         <ul className="mx-auto flex max-w-md">
           {TABS.map(({ id, label, icon: Icon }) => {
