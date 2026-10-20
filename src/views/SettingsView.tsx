@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronRight, Download, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { BEGINNING_OF_TIME, periodEnd, periodFor } from '../engine/rotation';
 import { monthStart } from '../engine/dates';
@@ -199,6 +199,7 @@ export function SettingsView() {
 
       <Section title="About">
         <InfoRow label="Version" value={__APP_VERSION__} />
+        <DisplayInfo />
         <InfoRow label="Data" value="Stored only on this device" />
         <InfoRow label="Offline" value={pwa.offlineReady || isStandaloneOrCached() ? 'Ready' : 'Available after first load'} />
         {pwa.needRefresh ? (
@@ -312,6 +313,40 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div className="flex min-h-12 items-center justify-between gap-3 px-4 text-[16px]">
       <span>{label}</span>
       <span className="text-right text-label-2">{value}</span>
+    </div>
+  );
+}
+
+/** Window and safe-area measurements, shown so layout problems on a device can be diagnosed. */
+function DisplayInfo() {
+  const probe = useRef<HTMLDivElement>(null);
+  const [text, setText] = useState('');
+  useEffect(() => {
+    const read = () => {
+      const cs = probe.current ? getComputedStyle(probe.current) : null;
+      const standalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
+      setText(
+        `window ${window.innerWidth}×${window.innerHeight}, screen ${screen.width}×${screen.height}, ` +
+          `visual ${Math.round(window.visualViewport?.height ?? 0)}, lvh ${cs?.height ?? '?'}, ` +
+          `safe top ${cs?.paddingTop ?? '?'} / bottom ${cs?.paddingBottom ?? '?'}, ${standalone ? 'installed' : 'browser'}`,
+      );
+    };
+    read();
+    window.addEventListener('resize', read);
+    return () => window.removeEventListener('resize', read);
+  }, []);
+  return (
+    <div className="px-4 py-3 text-[13px]">
+      <div className="flex justify-between gap-3 text-[16px]">
+        <span>Display</span>
+      </div>
+      <p className="mt-1 break-words text-label-2">{text}</p>
+      <div
+        ref={probe}
+        aria-hidden
+        className="pointer-events-none invisible absolute h-[100lvh] w-0"
+        style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      />
     </div>
   );
 }
