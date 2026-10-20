@@ -32,6 +32,7 @@ export default function App() {
   const scroller = useRef<HTMLElement>(null);
 
   useTheme(data.settings.theme);
+  useFullScreenHeight();
   useConnectivityToasts(toast);
   const { offlineReady } = usePWAState();
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function App() {
   };
 
   return (
-    <div className="fixed inset-0 mx-auto flex max-w-[1100px] flex-col bg-bg">
+    <div className="fixed inset-x-0 top-0 mx-auto flex h-[var(--app-h,100%)] max-w-[1100px] flex-col bg-bg">
       <main
         ref={scroller}
         id="main-scroll"
@@ -174,4 +175,25 @@ function useConnectivityToasts(toast: (message: string) => void) {
     previous.current = online;
     toast(online ? 'Back online' : 'You’re offline. Everything still works.');
   }, [online, toast]);
+}
+
+/**
+ * Installed iPhone web apps can report a window height shorter than the screen, leaving a gap
+ * under the tab bar. In portrait, use the larger of the reported height and the screen height.
+ */
+function useFullScreenHeight() {
+  useEffect(() => {
+    const apply = () => {
+      const portrait = window.innerHeight >= window.innerWidth;
+      const height = portrait ? Math.max(window.innerHeight, window.screen.height) : window.innerHeight;
+      document.documentElement.style.setProperty('--app-h', `${height}px`);
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+    };
+  }, []);
 }
