@@ -4,6 +4,7 @@ import { monthOf, startOfWeek } from './engine/dates';
 import type { DateKey, MonthKey, Shift } from './engine/types';
 import { EditDaySheet } from './components/EditDaySheet';
 import { ShiftDetailsSheet } from './components/ShiftDetailsSheet';
+import { TabBar } from './components/TabBar';
 import { useUI } from './components/UIProvider';
 import { useOnline } from './lib/hooks';
 import { applyUpdate, dismissOfflineReady, dismissUpdate, usePWAState } from './lib/pwa';
@@ -76,31 +77,7 @@ export default function App() {
         {tab === 'settings' && <SettingsView />}
       </main>
 
-      <nav
-        aria-label="Primary"
-        className="z-40 shrink-0 border-t border-separator bg-bg/85 pb-1 backdrop-blur-xl"
-      >
-        <ul className="mx-auto flex max-w-md">
-          {TABS.map(({ id, label, icon: Icon }) => {
-            const active = tab === id;
-            return (
-              <li key={id} className="flex-1">
-                <button
-                  type="button"
-                  onClick={() => changeTab(id)}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-11 w-full flex-col items-center justify-start gap-0.5 pt-2 text-[10px] font-medium transition-colors ${
-                    active ? 'text-accent' : 'text-label-2'
-                  }`}
-                >
-                  <Icon size={24} strokeWidth={active ? 2.3 : 1.9} aria-hidden />
-                  {label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <TabBar tabs={TABS} active={tab} onChange={changeTab} />
 
       {editDate && <EditDaySheet date={editDate} onClose={() => setEditDate(null)} />}
       {shiftDetails && (
