@@ -36,7 +36,7 @@ export const hr: Record<Key, string> = {
   // Day states
   'state.day': 'Dnevna smjena',
   'state.night': 'Noćna smjena',
-  'state.after_night': 'Nakon noćne smjene',
+  'state.after_night': 'Iz noćne smjene',
   'state.off': 'Slobodan dan',
 
   // Tabs and navigation
@@ -44,10 +44,10 @@ export const hr: Record<Key, string> = {
   'tab.week': 'Tjedan',
   'tab.settings': 'Postavke',
   'nav.primary': 'Glavna navigacija',
-  'nav.prevMonth': 'Prethodni mjesec',
-  'nav.nextMonth': 'Sljedeći mjesec',
-  'nav.prevWeek': 'Prethodni tjedan',
-  'nav.nextWeek': 'Sljedeći tjedan',
+  'nav.prevMonth': 'Prošli mjesec',
+  'nav.nextMonth': 'Idući mjesec',
+  'nav.prevWeek': 'Prošli tjedan',
+  'nav.nextWeek': 'Idući tjedan',
 
   // App-level banners and toasts
   'app.offline': 'Nisi na mreži. Shiftly i dalje radi; tvoji podaci nalaze se na ovom uređaju.',
@@ -58,16 +58,16 @@ export const hr: Record<Key, string> = {
   'app.crashTitle': 'Nešto je pošlo po zlu',
   'app.crashBody': 'Tvoji podaci sigurno su pohranjeni na ovom uređaju. Ponovno učitaj aplikaciju za nastavak.',
   'app.reload': 'Učitaj ponovno',
-  'err.save': 'Promjena se nije mogla spremiti. Za svaki slučaj izvezi sigurnosnu kopiju.',
+  'err.save': 'Promjena se nije mogla spremiti. Za svaki slučaj napravi sigurnosnu kopiju.',
   'err.storage':
-    'Pohrana nije dostupna u ovom pregledniku pa će se promjene izgubiti kad zatvoriš aplikaciju. Izvezi sigurnosnu kopiju kako bi ih sačuvao.',
+    'Pohrana nije dostupna u ovom pregledniku pa će se promjene izgubiti kad zatvoriš aplikaciju. Napravi sigurnosnu kopiju kako bi ih sačuvao.',
 
   // Month view
   'status.predicted': 'Predviđeno',
   'status.confirmed': 'Potvrđeno',
   'status.confirmedReview': 'Potvrđeno · provjeri izmjene',
   'status.aria': 'Status mjeseca: {label}. Dodirni za promjenu.',
-  'cell.recovery': 'Nakon noćne smjene, oporavak',
+  'cell.recovery': 'Iz noćne smjene, oporavak',
   'cell.dayOff': 'Slobodan dan',
   'cell.edited': 'uređeno',
 
@@ -180,8 +180,8 @@ export const hr: Record<Key, string> = {
   'set.markedPredicted': 'Označeno kao predviđeno',
   'set.backup': 'Sigurnosna kopija',
   'set.backupFooter':
-    'iOS može obrisati podatke web-stranice ako se aplikacija dugo ne koristi ili ponestane prostora. Povremeno izvezi sigurnosnu kopiju. {last}',
-  'set.lastExport': 'Zadnji izvoz: {date}.',
+    'iOS može obrisati podatke web-stranice ako se aplikacija dugo ne koristi ili ponestane prostora. Povremeno napravi sigurnosnu kopiju. {last}',
+  'set.lastExport': 'Zadnja sigurnosna kopija: {date}.',
   'set.neverExported': 'Sigurnosna kopija još nije izvezena.',
   'set.export': 'Izvezi sve podatke (JSON)',
   'set.restoreFrom': 'Vrati iz sigurnosne kopije…',
