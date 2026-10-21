@@ -130,7 +130,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
   }, []);
 
   return (
-    <nav aria-label="Primary" className="z-40 shrink-0 px-3 pb-2 pt-1">
+    <nav aria-label="Primary" className="z-40 shrink-0 touch-none px-3 pb-2 pt-1">
       <ul
         ref={list}
         className="relative mx-auto flex max-w-md rounded-full border border-separator bg-surface/90 p-1 backdrop-blur-xl"

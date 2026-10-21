@@ -66,12 +66,14 @@
   }
 
   html {
+    overflow: hidden;
     background: var(--bg);
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     margin: 0;
+    overflow: hidden;
     background: var(--bg);
     color: var(--label);
     font-family: var(--font-sans);
