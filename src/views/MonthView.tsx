@@ -94,7 +94,7 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
         </div>
       </div>
 
-      <div className="mt-4 md:mt-[4.5rem]">
+      <div className="mt-4 md:mt-18">
         <DayDetails date={selectedDate} onEdit={() => onEditDate(selectedDate)} />
       </div>
 
@@ -216,12 +216,12 @@ function DayCell({
       aria-pressed={selected}
       aria-current={isToday ? 'date' : undefined}
       onClick={onSelect}
-      className={`relative flex min-h-[60px] flex-col items-center rounded-xl pt-1.5 transition-[background-color,box-shadow] duration-150 sm:min-h-[76px] ${
+      className={`relative flex min-h-15 flex-col items-center rounded-xl pt-1.5 transition-[background-color,box-shadow] duration-150 sm:min-h-19 ${
         inMonth ? 'bg-surface' : 'bg-surface/40'
       } ${selected ? 'ring-[1.5px] ring-label-2' : ''}`}
     >
       <span
-        className={`tabular flex size-[26px] items-center justify-center rounded-full text-[16px] leading-none ${
+        className={`tabular flex size-6.5 items-center justify-center rounded-full text-[16px] leading-none ${
           isToday
             ? 'bg-accent font-semibold text-white'
             : inMonth

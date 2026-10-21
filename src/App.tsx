@@ -58,7 +58,7 @@ export default function App() {
   };
 
   return (
-    <div className="fixed inset-0 mx-auto flex max-w-[1100px] flex-col bg-bg">
+    <div className="fixed inset-0 mx-auto flex max-w-275 flex-col bg-bg">
       <main
         ref={scroller}
         id="main-scroll"
