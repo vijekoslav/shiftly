@@ -3,7 +3,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { execSync } from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
+
+// Version shown in the app: major.minor from package.json, patch = number of commits, plus the
+// short commit hash. It rises automatically with every commit; bump major/minor by hand.
+function git(args: string): string | null {
+  try {
+    return execSync(`git ${args}`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return null;
+  }
+}
+const [major, minor] = pkg.version.split('.');
+const commitCount = git('rev-list --count HEAD');
+const commitHash = git('rev-parse --short HEAD');
+const appVersion = commitCount ? `${major}.${minor}.${commitCount}${commitHash ? ` (${commitHash})` : ''}` : pkg.version;
 
 // GitHub Pages serves project sites from /<repo-name>/. The deploy workflow sets
 // BASE_PATH from the repository name; the fallback matches a repo called "shiftly".
@@ -14,7 +29,7 @@ export default defineConfig(({ command, isPreview }) => {
   const appBase = command === 'build' || isPreview ? base : '/';
   return {
     base: appBase,
-    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+    define: { __APP_VERSION__: JSON.stringify(appVersion) },
     plugins: [
       react(),
       tailwindcss(),
