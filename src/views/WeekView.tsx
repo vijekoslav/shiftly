@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Moon, Sun } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { addDays, startOfWeek } from '../engine/dates';
 import type { DateKey, Shift, ShiftSegment } from '../engine/types';
 import { ShiftIndicator } from '../components/ShiftIndicator';
@@ -59,12 +59,6 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
         <div className="min-w-0">
           <h1 className="whitespace-nowrap text-[26px] font-bold leading-tight tracking-tight">{title}</h1>
           <p className="mt-0.5 flex items-center gap-3 text-[13px] text-label-2">
-            <span className="flex items-center gap-1">
-              <Sun size={13} className="text-day" fill="currentColor" aria-hidden /> Day
-            </span>
-            <span className="flex items-center gap-1">
-              <Moon size={13} className="text-night" fill="currentColor" aria-hidden /> Night
-            </span>
             <span className="whitespace-nowrap">{year} · Week {formatDate(weekStart, 'I')}</span>
           </p>
         </div>
@@ -90,7 +84,6 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
         <div className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] gap-px pb-1.5">
           <div />
           {days.map((d) => {
-            const info = schedule.getDay(d);
             const isToday = d === today;
             return (
               <div key={d} className="flex flex-col items-center gap-0.5 text-center" aria-label={`${weekdayName(d)} ${shortDate(d)}`}>
@@ -101,9 +94,6 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
                   }`}
                 >
                   {Number(d.slice(8))}
-                </span>
-                <span className="flex h-3.5 items-center" aria-hidden>
-                  {info.state === 'after_night' && <ShiftIndicator state="after_night" size={14} labelled={false} />}
                 </span>
               </div>
             );
