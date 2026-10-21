@@ -76,7 +76,7 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
           ))}
         </div>
 
-        <div {...swipe} className="-m-0.5 overflow-hidden p-0.5">
+        <div {...swipe} className="-m-0.5 touch-pan-y overflow-hidden p-0.5">
           <MonthGrid
             key={month}
             month={month}

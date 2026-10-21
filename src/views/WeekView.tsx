@@ -45,19 +45,19 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
   };
   const swipe = useSwipe(() => go(-1), () => go(1));
 
-  const sameMonth = weekStart.slice(0, 7) === last.slice(0, 7);
-  const title = sameMonth
-    ? `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'd, yyyy')}`
-    : weekStart.slice(0, 4) === last.slice(0, 4)
-      ? `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'MMM d, yyyy')}`
-      : `${formatDate(weekStart, 'MMM d, yyyy')} – ${formatDate(last, 'MMM d, yyyy')}`;
+  // Year goes in the subtitle so the title stays short enough to sit beside the buttons.
+  const title =
+    weekStart.slice(0, 7) === last.slice(0, 7)
+      ? `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'd')}`
+      : `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'MMM d')}`;
+  const year = weekStart.slice(0, 4) === last.slice(0, 4) ? weekStart.slice(0, 4) : `${weekStart.slice(0, 4)}/${last.slice(0, 4)}`;
   const isThisWeek = weekStart === startOfWeek(today);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-3 pb-4 md:px-6">
       <header className="flex items-end justify-between px-1 pb-2 pt-2">
-        <div>
-          <h1 className="whitespace-nowrap text-[24px] font-bold leading-tight tracking-tight">{title}</h1>
+        <div className="min-w-0">
+          <h1 className="whitespace-nowrap text-[26px] font-bold leading-tight tracking-tight">{title}</h1>
           <p className="mt-0.5 flex items-center gap-3 text-[13px] text-label-2">
             <span className="flex items-center gap-1">
               <Sun size={13} className="text-day" fill="currentColor" aria-hidden /> Day
@@ -65,10 +65,10 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
             <span className="flex items-center gap-1">
               <Moon size={13} className="text-night" fill="currentColor" aria-hidden /> Night
             </span>
-            <span>Week {formatDate(weekStart, 'I')}</span>
+            <span className="whitespace-nowrap">{year} · Week {formatDate(weekStart, 'I')}</span>
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
             onClick={goToday}
@@ -86,7 +86,7 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
         </div>
       </header>
 
-      <div {...swipe} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div {...swipe} className="flex min-h-0 flex-1 touch-pan-y flex-col overflow-x-clip overflow-y-hidden">
         <div className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] gap-px pb-1.5">
           <div />
           {days.map((d) => {

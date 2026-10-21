@@ -111,6 +111,8 @@
   }
 
   .scroll-y {
+    overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
