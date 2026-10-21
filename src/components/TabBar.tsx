@@ -249,7 +249,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
                 type="button"
                 onClick={() => onChange(id)}
                 aria-current={active === id ? 'page' : undefined}
-                className={`flex min-h-[52px] w-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-300 ${
+                className={`flex min-h-13 w-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-300 ${
                   selected ? 'text-accent' : 'text-label-2'
                 }`}
               >

@@ -131,10 +131,6 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
           </div>
         </div>
       </div>
-
-      <p className="px-1 pt-2 text-[12px] leading-snug text-label-2">
-        Empty space is time without scheduled work. It is not guaranteed free time: you may still need to rest after a night shift.
-      </p>
     </div>
   );
 }
