@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, type ComponentType } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type PointerEvent } from 'react';
 
 export interface TabItem<T extends string> {
   id: T;
@@ -44,12 +44,17 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
   const reduceMotion = useRef(false);
   const activeRef = useRef(active);
   activeRef.current = active;
+  /** Tab currently under the indicator while the user drags it; null otherwise. */
+  const [preview, setPreview] = useState<T | null>(null);
+  const dragging = useRef(false);
+  const drag = useRef<{ startX: number; grab: number; moved: boolean; pointerId: number } | null>(null);
+  const suppressClick = useRef(false);
 
   const paint = (s: Spring) => {
     const el = indicator.current;
     if (!el) return;
     const speed = Math.abs(s.vx) + Math.abs(s.vw) * 0.5;
-    const lens = Math.min(1, speed / LENS_SPEED);
+    const lens = dragging.current ? 1 : Math.min(1, speed / LENS_SPEED);
     el.style.width = `${s.w}px`;
     el.style.transform = `translate3d(${s.x}px,0,0) scale(${1 + 0.1 * lens},${1 + 0.24 * lens})`;
     if (glass.current) glass.current.style.opacity = String(lens);
@@ -129,11 +134,93 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const ensureRunning = () => {
+    if (frame.current) return;
+    last.current = performance.now();
+    frame.current = requestAnimationFrame(step);
+  };
+
+  /** Pointer x relative to the list's padding box, the coordinate space of the indicator. */
+  const relX = (clientX: number) => {
+    const ul = list.current;
+    return ul ? clientX - ul.getBoundingClientRect().left - ul.clientLeft : 0;
+  };
+
+  const nearestTab = (centerX: number): T => {
+    let best = tabs[0].id;
+    let bestDistance = Infinity;
+    for (const t of tabs) {
+      const el = items.current.get(t.id);
+      if (!el) continue;
+      const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - centerX);
+      if (d < bestDistance) {
+        bestDistance = d;
+        best = t.id;
+      }
+    }
+    return best;
+  };
+
+  // Press and slide: the indicator follows the finger (still springy), the tab under it is
+  // previewed, and the selection is committed on release.
+  const onPointerDown = (e: PointerEvent) => {
+    const s = spring.current;
+    if (!s || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const x = relX(e.clientX);
+    const onIndicator = x >= s.x && x <= s.x + s.w;
+    drag.current = { startX: e.clientX, grab: onIndicator ? x - s.x : s.w / 2, moved: false, pointerId: e.pointerId };
+  };
+
+  const onPointerMove = (e: PointerEvent) => {
+    const d = drag.current;
+    const s = spring.current;
+    if (!d || !s) return;
+    if (!d.moved) {
+      if (Math.abs(e.clientX - d.startX) < 6) return; // still a tap
+      d.moved = true;
+      dragging.current = true;
+      list.current?.setPointerCapture(d.pointerId);
+    }
+    const first = items.current.get(tabs[0].id);
+    const lastTab = items.current.get(tabs[tabs.length - 1].id);
+    if (!first || !lastTab) return;
+    const minX = first.offsetLeft;
+    const maxX = lastTab.offsetLeft + lastTab.offsetWidth - s.w;
+    s.tx = Math.min(maxX, Math.max(minX, relX(e.clientX) - d.grab));
+    ensureRunning();
+    const id = nearestTab(s.tx + s.w / 2);
+    setPreview((prev) => (prev === id ? prev : id));
+  };
+
+  const endDrag = (cancelled: boolean) => {
+    const d = drag.current;
+    drag.current = null;
+    if (!d?.moved) return;
+    dragging.current = false;
+    // The browser still sends a click after the drag; swallow it so it doesn't select a tab twice.
+    suppressClick.current = true;
+    window.setTimeout(() => (suppressClick.current = false), 0);
+    const s = spring.current;
+    const id = cancelled || !s ? activeRef.current : nearestTab(s.tx + s.w / 2);
+    setPreview(null);
+    if (id !== activeRef.current) onChange(id);
+    else retarget(true);
+  };
+
+  const shown = preview ?? active;
+
   return (
     <nav aria-label="Primary" className="z-40 shrink-0 touch-none px-3 pb-2 pt-1">
       <ul
         ref={list}
-        className="relative mx-auto flex max-w-md rounded-full border border-separator bg-surface/90 p-1 backdrop-blur-xl"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={() => endDrag(false)}
+        onPointerCancel={() => endDrag(true)}
+        onClickCapture={(e) => {
+          if (suppressClick.current) e.stopPropagation();
+        }}
+        className="relative mx-auto flex max-w-md select-none rounded-full border border-separator bg-surface/90 p-1 backdrop-blur-xl"
       >
         <div
           ref={indicator}
@@ -148,7 +235,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
           />
         </div>
         {tabs.map(({ id, label, icon: Icon }) => {
-          const selected = active === id;
+          const selected = shown === id;
           return (
             <li
               key={id}
@@ -161,7 +248,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
               <button
                 type="button"
                 onClick={() => onChange(id)}
-                aria-current={selected ? 'page' : undefined}
+                aria-current={active === id ? 'page' : undefined}
                 className={`flex min-h-[52px] w-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-300 ${
                   selected ? 'text-accent' : 'text-label-2'
                 }`}
