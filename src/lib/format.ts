@@ -1,21 +1,38 @@
 import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale/en-US';
+import { hr as hrLocale } from 'date-fns/locale/hr';
 import { dateKeyToDate } from '../engine/dates';
 import type { DateKey, DayState, PatternStep, TimeFormat, TimeOfDay } from '../engine/types';
+import { capitalize, getLanguage, t } from '../i18n';
 
-export const STATE_LABEL: Record<DayState, string> = {
-  day: 'Day Shift',
-  night: 'Night Shift',
-  after_night: 'After Night Shift',
-  off: 'Day Off',
-};
+/** Day-state names in the current language. Getters, so each read reflects the active language. */
+export const STATE_LABEL = {
+  get day() {
+    return t('state.day');
+  },
+  get night() {
+    return t('state.night');
+  },
+  get after_night() {
+    return t('state.after_night');
+  },
+  get off() {
+    return t('state.off');
+  },
+} as Record<DayState, string>;
 
+/** Formats a date with a date-fns pattern in the current language. */
 export function formatDate(key: DateKey, pattern: string): string {
-  return format(dateKeyToDate(key), pattern);
+  return format(dateKeyToDate(key), pattern, { locale: getLanguage() === 'hr' ? hrLocale : enUS });
 }
 
-export const longDate = (key: DateKey) => formatDate(key, 'MMMM d, yyyy');
-export const weekdayName = (key: DateKey) => formatDate(key, 'EEEE');
-export const shortDate = (key: DateKey) => formatDate(key, 'EEE, MMM d');
+export const longDate = (key: DateKey) => formatDate(key, t('fmt.longDate'));
+export const shortDate = (key: DateKey) => formatDate(key, t('fmt.shortDate'));
+export const weekdayName = (key: DateKey) => capitalize(formatDate(key, 'EEEE'));
+/** Month name on its own, e.g. "October" / "Listopad". */
+export const monthName = (key: DateKey) => capitalize(formatDate(key, t('fmt.monthName')));
+/** Month and year, e.g. "October 2026" / "Listopad 2026.". */
+export const monthYear = (key: DateKey) => capitalize(formatDate(key, t('fmt.monthYear')));
 
 /** 24-hour by default; the 12-hour option renders "8:00 AM". */
 export function formatTime(time: TimeOfDay, fmt: TimeFormat): string {

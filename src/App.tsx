@@ -7,6 +7,7 @@ import { ShiftDetailsSheet } from './components/ShiftDetailsSheet';
 import { TabBar } from './components/TabBar';
 import { useUI } from './components/UIProvider';
 import { useOnline } from './lib/hooks';
+import { t, useLanguage } from './i18n';
 import { applyUpdate, dismissOfflineReady, dismissUpdate, usePWAState } from './lib/pwa';
 import { useApp } from './state/AppProvider';
 import { MonthView } from './views/MonthView';
@@ -15,10 +16,10 @@ import { WeekView } from './views/WeekView';
 
 type Tab = 'month' | 'week' | 'settings';
 
-const TABS: { id: Tab; label: string; icon: typeof CalendarDays }[] = [
-  { id: 'month', label: 'Month', icon: CalendarDays },
-  { id: 'week', label: 'Week', icon: CalendarRange },
-  { id: 'settings', label: 'Settings', icon: Settings },
+const getTabs = (): { id: Tab; label: string; icon: typeof CalendarDays }[] => [
+  { id: 'month', label: t('tab.month'), icon: CalendarDays },
+  { id: 'week', label: t('tab.week'), icon: CalendarRange },
+  { id: 'settings', label: t('tab.settings'), icon: Settings },
 ];
 
 export default function App() {
@@ -31,13 +32,16 @@ export default function App() {
   const [editDate, setEditDate] = useState<DateKey | null>(null);
   const [shiftDetails, setShiftDetails] = useState<Shift | null>(null);
   const scroller = useRef<HTMLElement>(null);
+  // Subscribing here re-renders the whole tree when the language changes.
+  useLanguage();
+  const tabs = getTabs();
 
   useTheme(data.settings.theme);
   useConnectivityToasts(toast);
   const { offlineReady } = usePWAState();
   useEffect(() => {
     if (!offlineReady) return;
-    toast('Ready to work offline');
+    toast(t('app.readyOffline'));
     dismissOfflineReady();
   }, [offlineReady, toast]);
   useEffect(() => onSaveError(toast), [onSaveError, toast]);
@@ -59,7 +63,7 @@ export default function App() {
         ref={scroller}
         id="main-scroll"
         className="scroll-y flex min-h-0 flex-1 flex-col pt-[env(safe-area-inset-top)]"
-        aria-label={TABS.find((t) => t.id === tab)?.label}
+        aria-label={tabs.find((x) => x.id === tab)?.label}
       >
         <StatusBanners />
         <div hidden={tab !== 'month'}>
@@ -77,7 +81,7 @@ export default function App() {
         {tab === 'settings' && <SettingsView />}
       </main>
 
-      <TabBar tabs={TABS} active={tab} onChange={changeTab} />
+      <TabBar tabs={tabs} active={tab} onChange={changeTab} />
 
       {editDate && <EditDaySheet date={editDate} onClose={() => setEditDate(null)} />}
       {shiftDetails && (
@@ -102,18 +106,18 @@ function StatusBanners() {
       {!online && (
         <div className="mx-3 mt-2 flex items-center gap-2 rounded-xl bg-surface px-3 py-2 text-[13px] text-label-2" role="status">
           <WifiOff size={15} aria-hidden />
-          You’re offline. Shiftly keeps working; your data lives on this device.
+          {t('app.offline')}
         </div>
       )}
       {pwa.needRefresh && (
         <div className="anim-pop-in mx-3 mt-2 flex items-center justify-between gap-3 rounded-xl bg-surface px-4 py-2.5 text-[14px]" role="status">
-          <span>A new version of Shiftly is ready.</span>
+          <span>{t('app.updateReady')}</span>
           <span className="flex shrink-0 items-center">
             <button type="button" onClick={dismissUpdate} className="min-h-11 px-2 text-label-2">
-              Later
+              {t('common.later')}
             </button>
             <button type="button" onClick={() => void applyUpdate()} className="min-h-11 px-2 font-semibold text-accent">
-              Update
+              {t('common.update')}
             </button>
           </span>
         </div>
@@ -149,6 +153,6 @@ function useConnectivityToasts(toast: (message: string) => void) {
   useEffect(() => {
     if (previous.current === online) return;
     previous.current = online;
-    toast(online ? 'Back online' : 'You’re offline. Everything still works.');
+    toast(online ? t('app.backOnline') : t('app.nowOffline'));
   }, [online, toast]);
 }

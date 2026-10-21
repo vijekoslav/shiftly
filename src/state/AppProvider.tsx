@@ -12,11 +12,13 @@ import type {
   ShiftSpec,
   ThemePreference,
   TimeFormat,
+  Language,
 } from '../engine/types';
 import { DEFAULT_SETTINGS, normalizeData, serializeBackup } from '../storage/backup';
 import { ShiftlyDB } from '../storage/db';
 import { createMemoryRepository, createRepository, type Repository } from '../storage/repository';
 import { useToday } from '../lib/hooks';
+import { setLanguage, t } from '../i18n';
 
 export interface OverrideChange {
   /** undefined: keep the rotation's shift; null: remove it; object: replace it. */
@@ -31,6 +33,7 @@ export interface AppActions {
   deletePeriod(id: string): void;
   setTheme(theme: ThemePreference): void;
   setTimeFormat(format: TimeFormat): void;
+  setLanguage(language: Language): void;
   confirmMonth(month: MonthKey): void;
   unconfirmMonth(month: MonthKey): void;
   exportData(): string;
@@ -68,7 +71,7 @@ async function openRepository(): Promise<{ repo: Repository; data: AppData; warn
     return {
       repo,
       data: await repo.load(),
-      warning: 'Storage is unavailable in this browser, so changes will be lost when you close the app. Export a backup to keep them.',
+      warning: t('err.storage'),
     };
   }
 }
@@ -104,6 +107,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     openRepository().then(({ repo, data: loaded, warning }) => {
       if (cancelled) return;
       repoRef.current = repo;
+      setLanguage(loaded.settings.language);
       dataRef.current = loaded;
       setData(loaded);
       setStorageWarning(warning);
@@ -120,7 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const commit = useCallback((next: AppData, persist: (repo: Repository) => Promise<unknown>) => {
     dataRef.current = next;
     setData(next);
-    persist(repoRef.current).catch(() => errorListener.current('Could not save your change. Export a backup to be safe.'));
+    persist(repoRef.current).catch(() => errorListener.current(t('err.save')));
   }, []);
 
   const actions = useMemo<AppActions>(() => {
@@ -210,6 +214,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         commit({ ...dataRef.current, settings }, (repo) => repo.saveSettings(settings));
       },
 
+      setLanguage(language) {
+        setLanguage(language);
+        const settings = { ...dataRef.current.settings, language };
+        commit({ ...dataRef.current, settings }, (repo) => repo.saveSettings(settings));
+      },
+
       confirmMonth(month) {
         const confirmation: MonthConfirmation = { month, confirmedAt: Date.now(), needsReview: false };
         const current = dataRef.current;
@@ -232,6 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       async importData(next) {
         const normalized = normalizeData(next);
+        setLanguage(normalized.settings.language);
         dataRef.current = normalized;
         setData(normalized);
         await repoRef.current.replaceAll(normalized);
@@ -239,6 +250,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       async resetAll() {
         const fresh: AppData = { ...EMPTY_DATA, periods: [createDefaultPeriod()] };
+        setLanguage(fresh.settings.language);
         dataRef.current = fresh;
         setData(fresh);
         await repoRef.current.replaceAll(fresh);

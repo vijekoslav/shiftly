@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type PointerEvent } from 'react';
+import { t } from '../i18n';
 
 export interface TabItem<T extends string> {
   id: T;
@@ -210,7 +211,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
   const shown = preview ?? active;
 
   return (
-    <nav aria-label="Primary" className="z-40 shrink-0 touch-none px-3 pb-2 pt-1">
+    <nav aria-label={t('nav.primary')} className="z-40 shrink-0 touch-none px-3 pb-2 pt-1">
       <ul
         ref={list}
         onPointerDown={onPointerDown}

@@ -84,6 +84,10 @@ Export a backup now and then.
 - **Week:** 24-hour columns with colour blocks sized to the real hours. A night shift appears as two blocks
   (evening on its start date, morning on the next). Tap either to open the same shift. Empty space is time
   without scheduled work, not guaranteed free time.
+- **Language:** Settings → Appearance → Language switches between English (EN) and Croatian (HR). It changes every
+  label, date and month name, and import error messages. Strings live in `src/i18n/en.ts` and `src/i18n/hr.ts`; the
+  Croatian file is typed against the English one, so a missing translation fails the build. To add a language, add
+  a dictionary, register it in `src/i18n/index.ts`, and add a date-fns locale in `src/lib/format.ts`.
 - **Settings → Rotation:** change the reference date, pattern and shift times, or add a **new rotation from a
   date** (for example a summer pattern). Dates before it keep their old schedule. Manual changes are never
   overwritten, and you are warned when a change overlaps them.

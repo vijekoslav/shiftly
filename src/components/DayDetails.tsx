@@ -4,6 +4,7 @@ import type { DateKey, DayInfo, Shift } from '../engine/types';
 import { formatDuration, formatRange, formatTime, longDate, STATE_LABEL, weekdayName } from '../lib/format';
 import { shiftDurationMinutes } from '../engine/schedule';
 import { useApp } from '../state/AppProvider';
+import { t } from '../i18n';
 import { ShiftIndicator, STATE_TEXT_CLASS, STATE_TINT_CLASS } from './ShiftIndicator';
 
 /** The compact panel under the month grid describing the selected date. */
@@ -15,7 +16,7 @@ export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void
   const carry = info.carryIn[0];
 
   return (
-    <section aria-label={`Details for ${longDate(date)}`} className="anim-fade-in rounded-2xl bg-surface p-4" key={date}>
+    <section aria-label={t('details.aria', { date: longDate(date) })} className="anim-fade-in rounded-2xl bg-surface p-4" key={date}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-[20px] font-semibold leading-tight">{longDate(date)}</h2>
@@ -27,7 +28,7 @@ export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void
           className="flex min-h-11 items-center gap-1.5 rounded-full bg-surface-2 px-4 text-[15px] font-medium text-accent active:bg-surface-3"
         >
           <Pencil size={15} aria-hidden />
-          Edit
+          {t('common.edit')}
         </button>
       </div>
 
@@ -36,11 +37,11 @@ export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void
         {carry && (
           <StateBlock
             state="after_night"
-            title={shift ? 'Recovery from last night' : STATE_LABEL.after_night}
-            lines={[`Previous shift ended at ${formatTime(carry.end, fmt)}.`, shift ? 'Another shift starts today.' : 'Recovery day.']}
+            title={shift ? t('details.recoveryFromLast') : STATE_LABEL.after_night}
+            lines={[t('details.prevEnded', { time: formatTime(carry.end, fmt) }), shift ? t('details.anotherShift') : t('details.recoveryDay')]}
           />
         )}
-        {!shift && !carry && <StateBlock state="off" title={STATE_LABEL.off} lines={['No scheduled work.']} />}
+        {!shift && !carry && <StateBlock state="off" title={STATE_LABEL.off} lines={[t('details.noWork')]} />}
       </div>
 
       <OverrideInfo info={info} />
@@ -54,7 +55,7 @@ export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void
 function ShiftBlock({ shift, fmt }: { shift: Shift; fmt: '24h' | '12h' }) {
   const lines = [
     shift.spillsIntoNextDay
-      ? `${formatRange(shift.start, shift.end, fmt)} (next day)`
+      ? `${formatRange(shift.start, shift.end, fmt)} ${t('details.nextDayParen')}`
       : formatRange(shift.start, shift.end, fmt),
   ];
   lines.push(formatDuration(shiftDurationMinutes(shift)));
@@ -99,21 +100,21 @@ function OverrideInfo({ info }: { info: DayInfo }) {
   const rotation = info.rotationShift;
   const base = rotation
     ? `${STATE_LABEL[rotation.kind]} ${formatRange(rotation.start, rotation.end, fmt)}`
-    : 'Day Off';
+    : STATE_LABEL.off;
   const changed = info.override.shift !== undefined;
   const nextDay = schedule.getDay(addDays(info.date, 1));
   return (
     <div className="mt-3 border-t border-separator pt-3 text-[13px] text-label-2">
       {changed ? (
         <p>
-          <span className="font-medium text-label">Edited.</span> The rotation would have this as {base}.
+          <span className="font-medium text-label">{t('details.edited')}</span> {t('details.rotationWould', { base })}
         </p>
       ) : (
         <p>
-          <span className="font-medium text-label">Note added.</span> The schedule follows the rotation.
+          <span className="font-medium text-label">{t('details.noteAdded')}</span> {t('details.followsRotation')}
         </p>
       )}
-      {changed && nextDay.state !== 'off' && <p className="mt-0.5">Next day: {STATE_LABEL[nextDay.state]}.</p>}
+      {changed && nextDay.state !== 'off' && <p className="mt-0.5">{t('details.nextDayState', { state: STATE_LABEL[nextDay.state] })}</p>}
     </div>
   );
 }

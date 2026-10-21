@@ -1,4 +1,5 @@
 import { isValidDateKey, isValidTime } from '../engine/dates';
+import { t } from '../i18n';
 import { BEGINNING_OF_TIME, sortPeriods } from '../engine/rotation';
 import type {
   AppData,
@@ -18,7 +19,7 @@ import type {
 export const SCHEMA_VERSION = 1;
 export const BACKUP_APP_ID = 'shiftly';
 
-export const DEFAULT_SETTINGS: AppSettings = { theme: 'dark', timeFormat: '24h' };
+export const DEFAULT_SETTINGS: AppSettings = { theme: 'dark', timeFormat: '24h', language: 'en' };
 
 export interface BackupFile {
   app: typeof BACKUP_APP_ID;
@@ -89,28 +90,28 @@ export function parseBackup(text: string): ParseResult {
   try {
     raw = JSON.parse(text);
   } catch {
-    return { ok: false, errors: ['This file is not valid JSON.'] };
+    return { ok: false, errors: [t('bk.notJson')] };
   }
   if (!isRec(raw) || raw.app !== BACKUP_APP_ID) {
-    return { ok: false, errors: ['This does not look like a Shiftly backup.'] };
+    return { ok: false, errors: [t('bk.notShiftly')] };
   }
   const version = raw.schemaVersion;
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 1) {
-    return { ok: false, errors: ['The backup has no valid schema version.'] };
+    return { ok: false, errors: [t('bk.noVersion')] };
   }
   if (version > SCHEMA_VERSION) {
     return {
       ok: false,
-      errors: [`This backup was made by a newer version of Shiftly (schema ${version}). Update the app first.`],
+      errors: [t('bk.newer', { version })],
     };
   }
-  if (!isRec(raw.data)) return { ok: false, errors: ['The backup contains no data.'] };
+  if (!isRec(raw.data)) return { ok: false, errors: [t('bk.noData')] };
 
   let data: Rec;
   try {
     data = migrateData(raw.data, version);
   } catch (e) {
-    return { ok: false, errors: [e instanceof Error ? e.message : 'The backup could not be upgraded.'] };
+    return { ok: false, errors: [e instanceof Error ? e.message : t('bk.upgradeFail')] };
   }
 
   const errors: string[] = [];
@@ -129,23 +130,23 @@ export function parseBackup(text: string): ParseResult {
 
 function validateData(data: Rec, errors: string[]): AppData | null {
   const settings = validateSettings(data.settings, errors);
-  const periods = validateList(data.periods, 'rotation periods', errors, validatePeriod);
-  const overrides = validateList(data.overrides, 'shift changes', errors, validateOverride);
-  const confirmations = validateList(data.confirmations, 'month confirmations', errors, validateConfirmation);
+  const periods = validateList(data.periods, t('bk.lblPeriods'), errors, validatePeriod);
+  const overrides = validateList(data.overrides, t('bk.lblOverrides'), errors, validateOverride);
+  const confirmations = validateList(data.confirmations, t('bk.lblConfirmations'), errors, validateConfirmation);
   if (errors.length > 0) return null;
 
-  if (periods.length === 0) errors.push('The backup needs at least one rotation.');
-  if (new Set(periods.map((p) => p.id)).size !== periods.length) errors.push('Rotation ids must be unique.');
+  if (periods.length === 0) errors.push(t('bk.needRotation'));
+  if (new Set(periods.map((p) => p.id)).size !== periods.length) errors.push(t('bk.dupRotationId'));
   if (new Set(periods.map((p) => p.effectiveFrom)).size !== periods.length) {
-    errors.push('Two rotations cannot start on the same date.');
+    errors.push(t('bk.dupRotationDate'));
   }
   if (!periods.some((p) => p.effectiveFrom === BEGINNING_OF_TIME)) {
     // The first period must cover all earlier dates.
     const first = sortPeriods(periods)[0];
     if (first) first.effectiveFrom = BEGINNING_OF_TIME;
   }
-  if (new Set(overrides.map((o) => o.date)).size !== overrides.length) errors.push('Duplicate shift changes for one date.');
-  if (new Set(confirmations.map((c) => c.month)).size !== confirmations.length) errors.push('Duplicate month confirmations.');
+  if (new Set(overrides.map((o) => o.date)).size !== overrides.length) errors.push(t('bk.dupOverride'));
+  if (new Set(confirmations.map((c) => c.month)).size !== confirmations.length) errors.push(t('bk.dupConfirm'));
   if (errors.length > 0) return null;
   return { settings: settings!, periods, overrides, confirmations };
 }
@@ -157,7 +158,7 @@ function validateList<T>(
   validate: (item: unknown, label: string, errors: string[]) => T | null,
 ): T[] {
   if (!Array.isArray(value)) {
-    errors.push(`Missing list of ${label}.`);
+    errors.push(t('bk.missingList', { label }));
     return [];
   }
   const out: T[] = [];
@@ -170,14 +171,21 @@ function validateList<T>(
 
 function validateSettings(value: unknown, errors: string[]): AppSettings | null {
   if (!isRec(value)) {
-    errors.push('Missing settings.');
+    errors.push(t('bk.missingSettings'));
     return null;
   }
   const theme = value.theme;
   const timeFormat = value.timeFormat;
-  if (theme !== 'system' && theme !== 'dark' && theme !== 'light') errors.push('Settings: unknown theme.');
-  if (timeFormat !== '24h' && timeFormat !== '12h') errors.push('Settings: unknown time format.');
-  return { theme: theme as AppSettings['theme'], timeFormat: timeFormat as AppSettings['timeFormat'] };
+  // Backups made before the language option existed have no `language`; they default to English.
+  const language = value.language ?? 'en';
+  if (theme !== 'system' && theme !== 'dark' && theme !== 'light') errors.push(t('bk.badTheme'));
+  if (timeFormat !== '24h' && timeFormat !== '12h') errors.push(t('bk.badTimeFormat'));
+  if (language !== 'en' && language !== 'hr') errors.push(t('bk.badLanguage'));
+  return {
+    theme: theme as AppSettings['theme'],
+    timeFormat: timeFormat as AppSettings['timeFormat'],
+    language: language as AppSettings['language'],
+  };
 }
 
 function validateRange(value: unknown): TimeRange | null {
@@ -187,7 +195,7 @@ function validateRange(value: unknown): TimeRange | null {
 
 function validatePeriod(value: unknown, label: string, errors: string[]): RotationPeriod | null {
   if (!isRec(value)) {
-    errors.push(`${label} is malformed.`);
+    errors.push(t('bk.malformed', { item: label }));
     return null;
   }
   const pattern = value.pattern;
@@ -207,7 +215,7 @@ function validatePeriod(value: unknown, label: string, errors: string[]): Rotati
     !day ||
     !night
   ) {
-    errors.push(`${label} has invalid values.`);
+    errors.push(t('bk.invalid', { item: label }));
     return null;
   }
   return {
@@ -229,11 +237,11 @@ function validateShiftSpec(value: unknown): ShiftSpec | null {
 
 function validateOverride(value: unknown, label: string, errors: string[]): ShiftOverride | null {
   if (!isRec(value) || !isValidDateKey(value.date) || typeof value.updatedAt !== 'number') {
-    errors.push(`${label} has invalid values.`);
+    errors.push(t('bk.invalid', { item: label }));
     return null;
   }
   if (value.note !== undefined && typeof value.note !== 'string') {
-    errors.push(`${label} has an invalid note.`);
+    errors.push(t('bk.invalidNote', { item: label }));
     return null;
   }
   const out: ShiftOverride = { date: value.date, updatedAt: value.updatedAt };
@@ -242,7 +250,7 @@ function validateOverride(value: unknown, label: string, errors: string[]): Shif
   else if (value.shift !== undefined) {
     const spec = validateShiftSpec(value.shift);
     if (!spec) {
-      errors.push(`${label} has an invalid shift.`);
+      errors.push(t('bk.invalidShift', { item: label }));
       return null;
     }
     out.shift = spec;
@@ -258,7 +266,7 @@ function validateConfirmation(value: unknown, label: string, errors: string[]): 
     typeof value.confirmedAt !== 'number' ||
     typeof value.needsReview !== 'boolean'
   ) {
-    errors.push(`${label} has invalid values.`);
+    errors.push(t('bk.invalid', { item: label }));
     return null;
   }
   return { month: value.month, confirmedAt: value.confirmedAt, needsReview: value.needsReview };

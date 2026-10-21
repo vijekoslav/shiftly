@@ -102,10 +102,12 @@ export interface MonthConfirmation {
 
 export type ThemePreference = 'system' | 'dark' | 'light';
 export type TimeFormat = '24h' | '12h';
+export type Language = 'en' | 'hr';
 
 export interface AppSettings {
   theme: ThemePreference;
   timeFormat: TimeFormat;
+  language: Language;
 }
 
 /** The complete, serialisable state of the app. Storage, backup and future sync all speak this. */

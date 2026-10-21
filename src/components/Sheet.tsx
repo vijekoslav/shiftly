@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useEscape } from '../lib/hooks';
+import { t } from '../i18n';
 
 interface SheetProps {
   title: string;
@@ -45,7 +46,7 @@ export function Sheet({ title, onClose, children, leading, trailing }: SheetProp
           <div className="justify-self-start">
             {leading ?? (
               <button type="button" onClick={onClose} className="-ml-2 min-h-11 px-2 text-[17px] text-accent">
-                Cancel
+                {t('common.cancel')}
               </button>
             )}
           </div>

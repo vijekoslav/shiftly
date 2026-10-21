@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useEscape } from '../lib/hooks';
+import { t } from '../i18n';
 
 interface ConfirmOptions {
   title: string;
@@ -88,11 +89,11 @@ function ConfirmDialog({ options, onResult }: { options: ConfirmOptions; onResul
         <div className="grid border-t border-separator" style={{ gridTemplateColumns: options.infoOnly ? '1fr' : '1fr 1fr' }}>
           {!options.infoOnly && (
             <button type="button" onClick={() => onResult(false)} className="min-h-11 border-r border-separator text-[17px] text-accent">
-              Cancel
+              {t('common.cancel')}
             </button>
           )}
           <button type="button" onClick={() => onResult(true)} className="min-h-11 text-[17px] font-semibold text-accent">
-            {options.confirmLabel ?? 'OK'}
+            {options.confirmLabel ?? t('common.ok')}
           </button>
         </div>
       </div>

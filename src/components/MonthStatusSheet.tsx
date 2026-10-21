@@ -1,7 +1,8 @@
 import { CircleCheck, CircleDashed, TriangleAlert } from 'lucide-react';
 import type { MonthKey } from '../engine/types';
-import { formatDate } from '../lib/format';
+import { monthYear } from '../lib/format';
 import { monthStart } from '../engine/dates';
+import { localeTag, t, tn } from '../i18n';
 import { useApp, useMonthStatus } from '../state/AppProvider';
 import { useUI } from './UIProvider';
 import { Sheet } from './Sheet';
@@ -12,17 +13,17 @@ export function MonthStatusSheet({ month, onClose }: { month: MonthKey; onClose:
   const { toast } = useUI();
   const { status, needsReview } = useMonthStatus(month);
   const confirmation = data.confirmations.find((c) => c.month === month);
-  const name = formatDate(monthStart(month), 'MMMM yyyy');
+  const name = monthYear(monthStart(month));
   const editedCount = data.overrides.filter((o) => o.date.startsWith(month)).length;
 
   const confirm = () => {
     actions.confirmMonth(month);
-    toast(`${name} confirmed`);
+    toast(t('ms.toastConfirmed', { month: name }));
     onClose();
   };
   const unconfirm = () => {
     actions.unconfirmMonth(month);
-    toast(`${name} marked as predicted`);
+    toast(t('ms.toastPredicted', { month: name }));
     onClose();
   };
 
@@ -36,27 +37,27 @@ export function MonthStatusSheet({ month, onClose }: { month: MonthKey; onClose:
           <div className="text-[15px]">
             {status === 'predicted' && (
               <>
-                <p className="font-semibold">Predicted</p>
+                <p className="font-semibold">{t('status.predicted')}</p>
                 <p className="mt-1 text-label-2">
-                  Calculated from your rotation and not yet checked against the official work roster.
+                  {t('ms.predictedBody')}
                 </p>
               </>
             )}
             {status === 'confirmed' && !needsReview && (
               <>
-                <p className="font-semibold">Confirmed</p>
+                <p className="font-semibold">{t('status.confirmed')}</p>
                 <p className="mt-1 text-label-2">
-                  You checked this month against the official roster
-                  {confirmation ? ` on ${new Date(confirmation.confirmedAt).toLocaleDateString()}` : ''}.
+                  {confirmation
+                    ? t('ms.confirmedBodyDate', { date: new Date(confirmation.confirmedAt).toLocaleDateString(localeTag()) })
+                    : t('ms.confirmedBody')}
                 </p>
               </>
             )}
             {status === 'confirmed' && needsReview && (
               <>
-                <p className="font-semibold">Confirmed, but changed since</p>
+                <p className="font-semibold">{t('ms.reviewTitle')}</p>
                 <p className="mt-1 text-label-2">
-                  Shifts in this month were edited after you confirmed it. Your edits are kept. Check the month against the
-                  roster again, then confirm it.
+                  {t('ms.reviewBody')}
                 </p>
               </>
             )}
@@ -65,7 +66,7 @@ export function MonthStatusSheet({ month, onClose }: { month: MonthKey; onClose:
 
         {editedCount > 0 && (
           <p className="px-1 text-[13px] text-label-2">
-            {editedCount} {editedCount === 1 ? 'day has' : 'days have'} manual changes this month.
+            {tn('ms.editedCount', editedCount)}
           </p>
         )}
 
@@ -76,7 +77,7 @@ export function MonthStatusSheet({ month, onClose }: { month: MonthKey; onClose:
               onClick={confirm}
               className="min-h-12 w-full rounded-xl bg-accent text-[17px] font-semibold text-white active:opacity-80"
             >
-              {needsReview ? 'Confirm again' : 'Mark as confirmed'}
+              {needsReview ? t('ms.confirmAgain') : t('ms.confirm')}
             </button>
           )}
           {status === 'confirmed' && (
@@ -85,7 +86,7 @@ export function MonthStatusSheet({ month, onClose }: { month: MonthKey; onClose:
               onClick={unconfirm}
               className="min-h-12 w-full rounded-xl bg-surface text-[17px] font-medium text-accent active:bg-surface-2"
             >
-              Mark as predicted
+              {t('ms.markPredicted')}
             </button>
           )}
         </div>

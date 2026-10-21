@@ -4,6 +4,7 @@ import { addDays, startOfWeek } from '../engine/dates';
 import type { DateKey, Shift, ShiftSegment } from '../engine/types';
 import { ShiftIndicator } from '../components/ShiftIndicator';
 import { formatDate, formatTime, shortDate, STATE_LABEL, weekdayName } from '../lib/format';
+import { t } from '../i18n';
 import { useNowMinutes, useSwipe } from '../lib/hooks';
 import { useApp } from '../state/AppProvider';
 
@@ -48,8 +49,8 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
   // Year goes in the subtitle so the title stays short enough to sit beside the buttons.
   const title =
     weekStart.slice(0, 7) === last.slice(0, 7)
-      ? `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'd')}`
-      : `${formatDate(weekStart, 'MMM d')} – ${formatDate(last, 'MMM d')}`;
+      ? `${formatDate(weekStart, t('fmt.weekFromSame'))} – ${formatDate(last, t('fmt.weekToSame'))}`
+      : `${formatDate(weekStart, t('fmt.weekShort'))} – ${formatDate(last, t('fmt.weekShort'))}`;
   const year = weekStart.slice(0, 4) === last.slice(0, 4) ? weekStart.slice(0, 4) : `${weekStart.slice(0, 4)}/${last.slice(0, 4)}`;
   const isThisWeek = weekStart === startOfWeek(today);
 
@@ -59,7 +60,7 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
         <div className="min-w-0">
           <h1 className="whitespace-nowrap text-[26px] font-bold leading-tight tracking-tight">{title}</h1>
           <p className="mt-0.5 flex items-center gap-3 text-[13px] text-label-2">
-            <span className="whitespace-nowrap">{year} · Week {formatDate(weekStart, 'I')}</span>
+            <span className="whitespace-nowrap">{t('week.subtitle', { year, n: formatDate(weekStart, 'I') })}</span>
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -69,12 +70,12 @@ export function WeekView({ weekStart, onWeekChange, onOpenShift }: Props) {
             disabled={isThisWeek}
             className="min-h-11 rounded-full px-3 text-[15px] font-medium text-accent disabled:opacity-40"
           >
-            Today
+            {t('common.today')}
           </button>
-          <button type="button" onClick={() => go(-1)} aria-label="Previous week" className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+          <button type="button" onClick={() => go(-1)} aria-label={t('nav.prevWeek')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
             <ChevronLeft size={24} />
           </button>
-          <button type="button" onClick={() => go(1)} aria-label="Next week" className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+          <button type="button" onClick={() => go(1)} aria-label={t('nav.nextWeek')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
             <ChevronRight size={24} />
           </button>
         </div>
@@ -175,7 +176,13 @@ function SegmentBlock({ seg, fmt, onOpen }: { seg: ShiftSegment; fmt: '24h' | '1
   const top = (seg.startMin / 1440) * 100;
   const height = ((seg.endMin - seg.startMin) / 1440) * 100;
   const isDay = shift.kind === 'day';
-  const label = `${STATE_LABEL[shift.kind]}, ${shortDate(shift.date)} ${formatTime(shift.start, fmt)} to ${shortDate(shift.endDate)} ${formatTime(shift.end, fmt)}`;
+  const label = t('week.shiftAria', {
+    state: STATE_LABEL[shift.kind],
+    startDate: shortDate(shift.date),
+    startTime: formatTime(shift.start, fmt),
+    endDate: shortDate(shift.endDate),
+    endTime: formatTime(shift.end, fmt),
+  });
   // Flat edges mark where an overnight shift continues across midnight.
   const radius = `${seg.isStart ? 'rounded-t-lg' : ''} ${seg.isEnd ? 'rounded-b-lg' : ''}`;
 

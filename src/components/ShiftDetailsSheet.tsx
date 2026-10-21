@@ -3,6 +3,7 @@ import type { Shift } from '../engine/types';
 import { shiftDurationMinutes } from '../engine/schedule';
 import { formatDuration, formatTime, shortDate, STATE_LABEL } from '../lib/format';
 import { useApp } from '../state/AppProvider';
+import { t } from '../i18n';
 import { Sheet, SheetAction } from './Sheet';
 import { ShiftIndicator, STATE_TEXT_CLASS, STATE_TINT_CLASS } from './ShiftIndicator';
 
@@ -23,18 +24,18 @@ export function ShiftDetailsSheet({
 
   return (
     <Sheet
-      title="Shift"
+      title={t('sd.title')}
       onClose={onClose}
       leading={
         <SheetAction onClick={onClose} bold={false}>
-          Close
+          {t('common.close')}
         </SheetAction>
       }
       trailing={
         <SheetAction onClick={onEdit}>
           <span className="flex items-center gap-1.5">
             <Pencil size={15} aria-hidden />
-            Edit
+            {t('common.edit')}
           </span>
         </SheetAction>
       }
@@ -51,30 +52,30 @@ export function ShiftDetailsSheet({
         </div>
 
         <dl className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface text-[15px]">
-          <Row label="Starts" value={`${shortDate(shift.date)}, ${formatTime(shift.start, fmt)}`} />
-          <Row label="Ends" value={`${shortDate(shift.endDate)}, ${formatTime(shift.end, fmt)}`} />
+          <Row label={t('sd.starts')} value={`${shortDate(shift.date)}, ${formatTime(shift.start, fmt)}`} />
+          <Row label={t('sd.ends')} value={`${shortDate(shift.endDate)}, ${formatTime(shift.end, fmt)}`} />
           <Row
-            label="Source"
+            label={t('sd.source')}
             value={
               shift.source === 'override'
-                ? 'Edited manually'
-                : 'From rotation'
+                ? t('sd.sourceEdited')
+                : t('sd.sourceRotation')
             }
           />
         </dl>
 
         {shift.spillsIntoNextDay && (
           <p className="px-1 text-[13px] text-label-2">
-            This is one shift that runs past midnight. After it ends you are in recovery on {shortDate(shift.endDate)}.
+            {t('sd.overnight', { date: shortDate(shift.endDate) })}
           </p>
         )}
         {override && rotation && override.shift !== undefined && (
           <p className="px-1 text-[13px] text-label-2">
-            The rotation would have {STATE_LABEL[rotation.kind]} {formatTime(rotation.start, fmt)}–{formatTime(rotation.end, fmt)} here.
+            {t('sd.rotationWould', { state: STATE_LABEL[rotation.kind], range: `${formatTime(rotation.start, fmt)}–${formatTime(rotation.end, fmt)}` })}
           </p>
         )}
         {override && !rotation && override.shift && (
-          <p className="px-1 text-[13px] text-label-2">This is an extra shift on a day the rotation leaves free.</p>
+          <p className="px-1 text-[13px] text-label-2">{t('sd.extra')}</p>
         )}
         {override?.note && <p className="rounded-2xl bg-surface px-4 py-3 text-[15px]">{override.note}</p>}
       </div>

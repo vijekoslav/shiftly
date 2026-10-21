@@ -12,6 +12,7 @@ import { Schedule } from '../engine/schedule';
 import type { DateKey, PatternStep, RotationPeriod } from '../engine/types';
 import { describeStep, formatDate, longDate, STATE_LABEL } from '../lib/format';
 import { useApp } from '../state/AppProvider';
+import { t, tn } from '../i18n';
 import { Sheet, SheetAction } from './Sheet';
 import { ShiftIndicator } from './ShiftIndicator';
 import { useUI } from './UIProvider';
@@ -91,53 +92,51 @@ export function RotationEditorSheet({ period, onClose }: Props) {
   const save = async () => {
     if (!valid || !analysis) return;
     const warnings: string[] = [];
-    if (isFirst) warnings.push('This changes the schedule for every date before the next rotation, including the past.');
-    if (analysis.replaced) warnings.push(`It replaces the rotation that starts on ${longDate(draft.effectiveFrom)}.`);
+    if (isFirst) warnings.push(t('rot.warnPast'));
+    if (analysis.replaced) warnings.push(t('rot.replaces', { date: longDate(draft.effectiveFrom) }));
     if (analysis.conflicting.length > 0) {
-      warnings.push(
-        `${analysis.conflicting.length} manual ${analysis.conflicting.length === 1 ? 'change falls' : 'changes fall'} in this range. They are kept and still take precedence.`,
-      );
+      warnings.push(tn('rot.warnConflict', analysis.conflicting.length));
     }
     if (warnings.length > 0) {
-      const ok = await confirm({ title: 'Save this rotation?', message: warnings.join('\n\n'), confirmLabel: 'Save' });
+      const ok = await confirm({ title: t('rot.saveTitle'), message: warnings.join('\n\n'), confirmLabel: t('common.save') });
       if (!ok) return;
     }
     actions.savePeriod(draft);
-    toast(isNew ? 'Rotation added' : 'Rotation saved');
+    toast(isNew ? t('rot.added') : t('rot.saved'));
     onClose();
   };
 
   const remove = async () => {
     if (!period || isFirst) return;
     const ok = await confirm({
-      title: 'Delete this rotation?',
-      message: `Dates from ${longDate(period.effectiveFrom)} on will follow the previous rotation again. Manual changes are kept.`,
-      confirmLabel: 'Delete',
+      title: t('rot.deleteTitle'),
+      message: t('rot.deleteMsg', { date: longDate(period.effectiveFrom) }),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) return;
     actions.deletePeriod(period.id);
-    toast('Rotation deleted');
+    toast(t('rot.deleted'));
     onClose();
   };
 
   return (
     <Sheet
-      title={isNew ? 'New rotation' : 'Edit rotation'}
+      title={isNew ? t('rot.new') : t('rot.edit')}
       onClose={onClose}
       trailing={
         <SheetAction onClick={save} disabled={!valid}>
-          Save
+          {t('common.save')}
         </SheetAction>
       }
     >
       <div className="space-y-5">
-        <Group label="Dates">
+        <Group label={t('rot.dates')}>
           {isFirst ? (
-            <Row label="Applies from">
-              <span className="text-label-2">The beginning</span>
+            <Row label={t('rot.appliesFrom')}>
+              <span className="text-label-2">{t('rot.theBeginning')}</span>
             </Row>
           ) : (
-            <Row label="Effective from" htmlFor="rot-from">
+            <Row label={t('rot.effectiveFrom')} htmlFor="rot-from">
               <input
                 id="rot-from"
                 type="date"
@@ -147,7 +146,7 @@ export function RotationEditorSheet({ period, onClose }: Props) {
               />
             </Row>
           )}
-          <Row label="Reference date" htmlFor="rot-anchor" hint="Step 1 of the pattern falls on this date.">
+          <Row label={t('rot.refDate')} htmlFor="rot-anchor" hint={t('rot.refHint')}>
             <input
               id="rot-anchor"
               type="date"
@@ -163,9 +162,9 @@ export function RotationEditorSheet({ period, onClose }: Props) {
         </Group>
 
         <div>
-          <SectionLabel>Pattern</SectionLabel>
+          <SectionLabel>{t('rot.pattern')}</SectionLabel>
           <div className="rounded-2xl bg-surface p-3">
-            <ol className="grid grid-cols-4 gap-2 sm:grid-cols-6" aria-label="Rotation steps, one per day">
+            <ol className="grid grid-cols-4 gap-2 sm:grid-cols-6" aria-label={t('rot.stepsAria')}>
               {pattern.map((_, i) => {
                 const state = describeStep(pattern, i);
                 return (
@@ -173,15 +172,15 @@ export function RotationEditorSheet({ period, onClose }: Props) {
                     <button
                       type="button"
                       onClick={() => setPattern((p) => p.map((s, j) => (j === i ? NEXT_STEP[s] : s)))}
-                      aria-label={`Day ${i + 1}: ${STATE_LABEL[state]}. Tap to change.`}
+                      aria-label={t('rot.stepAria', { n: i + 1, state: STATE_LABEL[state] })}
                       className="flex min-h-[68px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-surface-2 active:bg-surface-3"
                     >
-                      <span className="text-[10px] font-medium text-label-2">Day {i + 1}</span>
+                      <span className="text-[10px] font-medium text-label-2">{t('set.dayN', { n: i + 1 })}</span>
                       <span className="flex h-5 items-center">
                         {state === 'off' ? <span className="size-2 rounded-full bg-label-3" aria-hidden /> : <ShiftIndicator state={state} size={18} labelled={false} />}
                       </span>
                       <span className="text-[10px] font-medium text-label-2">
-                        {state === 'after_night' ? 'After night' : state === 'off' ? 'Off' : state === 'day' ? 'Day' : 'Night'}
+                        {state === 'after_night' ? t('rot.lblAfter') : state === 'off' ? t('rot.lblOff') : state === 'day' ? t('rot.lblDay') : t('rot.lblNight')}
                       </span>
                     </button>
                   </li>
@@ -189,11 +188,11 @@ export function RotationEditorSheet({ period, onClose }: Props) {
               })}
             </ol>
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-[12px] text-label-2">Tap a day to switch Day, Night or Off. A day off after a night is shown as After night.</p>
+              <p className="text-[12px] text-label-2">{t('rot.patternHelp')}</p>
               <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
-                  aria-label="Remove last day"
+                  aria-label={t('rot.removeDay')}
                   disabled={pattern.length <= 1}
                   onClick={() => setPattern((p) => p.slice(0, -1))}
                   className="flex size-11 items-center justify-center rounded-full bg-surface-2 text-accent disabled:text-label-3"
@@ -202,7 +201,7 @@ export function RotationEditorSheet({ period, onClose }: Props) {
                 </button>
                 <button
                   type="button"
-                  aria-label="Add a day"
+                  aria-label={t('rot.addDay')}
                   disabled={pattern.length >= MAX_STEPS}
                   onClick={() => setPattern((p) => [...p, 'off'])}
                   className="flex size-11 items-center justify-center rounded-full bg-surface-2 text-accent disabled:text-label-3"
@@ -214,15 +213,15 @@ export function RotationEditorSheet({ period, onClose }: Props) {
           </div>
         </div>
 
-        <Group label="Shift times">
-          <TimePair label="Day shift" idPrefix="day" start={dayStart} end={dayEnd} onStart={setDayStart} onEnd={setDayEnd} />
-          <TimePair label="Night shift" idPrefix="night" start={nightStart} end={nightEnd} onStart={setNightStart} onEnd={setNightEnd} />
-          {!timesValid && <p className="px-4 py-2 text-[13px] text-accent">Start and end times must be valid and different.</p>}
+        <Group label={t('rot.times')}>
+          <TimePair label={t('rot.dayShift')} idPrefix="day" start={dayStart} end={dayEnd} onStart={setDayStart} onEnd={setDayEnd} />
+          <TimePair label={t('rot.nightShift')} idPrefix="night" start={nightStart} end={nightEnd} onStart={setNightStart} onEnd={setNightEnd} />
+          {!timesValid && <p className="px-4 py-2 text-[13px] text-accent">{t('rot.timesInvalid')}</p>}
         </Group>
 
         {analysis && (
           <div>
-            <SectionLabel>Preview, 14 days from {formatDate(isFirst ? today : effectiveFrom, 'MMM d')}</SectionLabel>
+            <SectionLabel>{t('rot.preview', { date: formatDate(isFirst ? today : effectiveFrom, t('fmt.weekShort')) })}</SectionLabel>
             <div className="scroll-y -mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
               {analysis.preview.map((d) => (
                 <div key={d.date} className="flex w-11 shrink-0 flex-col items-center rounded-xl bg-surface py-1.5">
@@ -240,18 +239,19 @@ export function RotationEditorSheet({ period, onClose }: Props) {
         {analysis && (isFirst || analysis.conflicting.length > 0 || analysis.replaced) && (
           <div className="space-y-1.5 rounded-2xl bg-warn/10 p-4 text-[13px]">
             <p className="flex items-center gap-1.5 font-semibold text-warn">
-              <TriangleAlert size={15} aria-hidden /> Before you save
+              <TriangleAlert size={15} aria-hidden /> {t('rot.before')}
             </p>
-            {isFirst && <p>This rotation also covers past dates. To change only from a date onward, create a new rotation instead.</p>}
-            {analysis.replaced && <p>It replaces the rotation that starts on {longDate(draft.effectiveFrom)}.</p>}
+            {isFirst && <p>{t('rot.coversPast')}</p>}
+            {analysis.replaced && <p>{t('rot.replaces', { date: longDate(draft.effectiveFrom) })}</p>}
             {analysis.conflicting.length > 0 && (
               <p>
-                {analysis.conflicting.length} manual {analysis.conflicting.length === 1 ? 'change' : 'changes'} in this range (
-                {analysis.conflicting
-                  .slice(0, 3)
-                  .map((o) => formatDate(o.date, 'MMM d'))
-                  .join(', ')}
-                {analysis.conflicting.length > 3 ? '…' : ''}) will be kept and still override the rotation.
+                {tn('rot.conflicts', analysis.conflicting.length, {
+                  dates:
+                    analysis.conflicting
+                      .slice(0, 3)
+                      .map((o) => formatDate(o.date, t('fmt.weekShort')))
+                      .join(', ') + (analysis.conflicting.length > 3 ? '…' : ''),
+                })}
               </p>
             )}
           </div>
@@ -262,7 +262,7 @@ export function RotationEditorSheet({ period, onClose }: Props) {
           onClick={resetPattern}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-surface text-[16px] font-medium text-accent active:bg-surface-2"
         >
-          <RotateCcw size={17} aria-hidden /> Reset pattern and times to default
+          <RotateCcw size={17} aria-hidden /> {t('rot.reset')}
         </button>
 
         {!isNew && !isFirst && (
@@ -271,7 +271,7 @@ export function RotationEditorSheet({ period, onClose }: Props) {
             onClick={remove}
             className="min-h-12 w-full rounded-xl bg-surface text-[16px] font-medium text-accent active:bg-surface-2"
           >
-            Delete rotation
+            {t('rot.delete')}
           </button>
         )}
       </div>
@@ -335,11 +335,11 @@ function TimePair({
     <div className="flex min-h-12 items-center justify-between gap-2 px-4 py-2">
       <span className="text-[16px]">{label}</span>
       <span className="flex items-center gap-1.5">
-        {input(`${idPrefix}-start`, start, onStart, `${label} start`)}
+        {input(`${idPrefix}-start`, start, onStart, t('rot.startAria', { label }))}
         <span className="text-label-2" aria-hidden>
           –
         </span>
-        {input(`${idPrefix}-end`, end, onEnd, `${label} end`)}
+        {input(`${idPrefix}-end`, end, onEnd, t('rot.endAria', { label }))}
       </span>
     </div>
   );

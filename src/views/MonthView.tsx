@@ -6,10 +6,11 @@ import { ShiftIndicator } from '../components/ShiftIndicator';
 import { DayDetails } from '../components/DayDetails';
 import { MonthStatusSheet } from '../components/MonthStatusSheet';
 import { useApp, useMonthStatus } from '../state/AppProvider';
-import { formatDate, formatRange, longDate, STATE_LABEL, weekdayName } from '../lib/format';
+import { formatDate, formatRange, longDate, monthName, monthYear, STATE_LABEL, weekdayName } from '../lib/format';
+import { t } from '../i18n';
 import { useSwipe } from '../lib/hooks';
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY_KEYS = ['wd.0', 'wd.1', 'wd.2', 'wd.3', 'wd.4', 'wd.5', 'wd.6'] as const;
 
 interface Props {
   month: MonthKey;
@@ -45,7 +46,7 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
         <header className="flex items-end justify-between px-1 pb-3 pt-2">
           <div className="min-w-0">
             <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
-              <span>{formatDate(monthDate, 'MMMM')}</span>
+              <span>{monthName(monthDate)}</span>
               <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
             </h1>
             <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />
@@ -57,21 +58,21 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
               disabled={isCurrent}
               className="min-h-11 rounded-full px-3 text-[15px] font-medium text-accent transition-opacity disabled:opacity-40"
             >
-              Today
+              {t('common.today')}
             </button>
-            <button type="button" onClick={() => go(-1)} aria-label="Previous month" className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+            <button type="button" onClick={() => go(-1)} aria-label={t('nav.prevMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
               <ChevronLeft size={24} />
             </button>
-            <button type="button" onClick={() => go(1)} aria-label="Next month" className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+            <button type="button" onClick={() => go(1)} aria-label={t('nav.nextMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
               <ChevronRight size={24} />
             </button>
           </div>
         </header>
 
         <div className="grid grid-cols-7 gap-1 pb-1.5" aria-hidden>
-          {WEEKDAYS.map((d) => (
-            <div key={d} className="text-center text-[11px] font-semibold uppercase tracking-wide text-label-2">
-              {d}
+          {WEEKDAY_KEYS.map((k) => (
+            <div key={k} className="text-center text-[11px] font-semibold uppercase tracking-wide text-label-2">
+              {t(k)}
             </div>
           ))}
         </div>
@@ -105,22 +106,22 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
 function MonthStatusPill({ month, onClick }: { month: MonthKey; onClick: () => void }) {
   const { status, needsReview } = useMonthStatus(month);
   let icon = <CircleDashed size={13} aria-hidden />;
-  let label = 'Predicted';
+  let label = t('status.predicted');
   let tone = 'text-label-2';
   if (status === 'confirmed' && !needsReview) {
     icon = <CircleCheck size={13} aria-hidden />;
-    label = 'Confirmed';
+    label = t('status.confirmed');
     tone = 'text-good';
   } else if (status === 'confirmed') {
     icon = <TriangleAlert size={13} aria-hidden />;
-    label = 'Confirmed · review changes';
+    label = t('status.confirmedReview');
     tone = 'text-warn';
   }
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Month status: ${label}. Tap to change.`}
+      aria-label={t('status.aria', { label })}
       className={`-ml-2 mt-0.5 flex min-h-8 items-center gap-1 rounded-full px-2 text-[13px] font-medium ${tone}`}
     >
       {icon}
@@ -154,7 +155,7 @@ function MonthGrid({
     <div
       className={`grid grid-cols-7 gap-1 ${animate ? (direction === 'prev' ? 'anim-slide-from-left' : 'anim-slide-from-right') : ''}`}
       role="group"
-      aria-label={formatDate(monthStart(month), 'MMMM yyyy')}
+      aria-label={monthYear(monthStart(month))}
     >
       {dates.map((date) => {
         const info = schedule.getDay(date);
@@ -181,11 +182,11 @@ function cellLabel(info: DayInfo, fmt: '24h' | '12h'): string {
   const shift = info.shifts[0];
   if (shift) {
     const when = formatRange(shift.start, shift.end, fmt);
-    parts.push(`${STATE_LABEL[shift.kind]}, ${when}${shift.spillsIntoNextDay ? ' next day' : ''}`);
+    parts.push(`${STATE_LABEL[shift.kind]}, ${when}${shift.spillsIntoNextDay ? ` ${t('common.nextDay')}` : ''}`);
   }
-  if (info.recovery) parts.push('After night shift, recovery');
-  if (!shift && !info.recovery) parts.push('Day off');
-  if (info.override) parts.push('edited');
+  if (info.recovery) parts.push(t('cell.recovery'));
+  if (!shift && !info.recovery) parts.push(t('cell.dayOff'));
+  if (info.override) parts.push(t('cell.edited'));
   return parts.join('. ');
 }
 

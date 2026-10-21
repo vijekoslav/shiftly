@@ -2,12 +2,13 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createDefaultPeriod } from '../engine/rotation';
 import type { AppData } from '../engine/types';
+import { setLanguage } from '../i18n';
 import { createBackup, parseBackup, serializeBackup, summarizeData } from './backup';
 import { ShiftlyDB } from './db';
 import { createRepository } from './repository';
 
 const sample: AppData = {
-  settings: { theme: 'light', timeFormat: '12h' },
+  settings: { theme: 'light', timeFormat: '12h', language: 'hr' },
   periods: [
     createDefaultPeriod(),
     {
@@ -77,6 +78,31 @@ describe('backup file', () => {
     if (!r.ok) expect(r.errors.length).toBeGreaterThanOrEqual(3);
   });
 
+  it('accepts backups from before the language option and defaults them to English', () => {
+    const old = JSON.parse(serializeBackup(sample));
+    delete old.data.settings.language;
+    const r = parseBackup(JSON.stringify(old));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.backup.data.settings.language).toBe('en');
+  });
+
+  it('rejects an unknown language', () => {
+    const bad = JSON.parse(serializeBackup(sample));
+    bad.data.settings.language = 'xx';
+    expect(parseBackup(JSON.stringify(bad)).ok).toBe(false);
+  });
+
+  it('reports import errors in the current language', () => {
+    setLanguage('hr');
+    try {
+      const r = parseBackup('not json {');
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.errors[0]).toBe('Datoteka nije ispravan JSON.');
+    } finally {
+      setLanguage('en');
+    }
+  });
+
   it('rejects backups with no rotation or conflicting rotations', () => {
     const none = { ...createBackup(sample), data: { ...sample, periods: [] } };
     expect(parseBackup(JSON.stringify(none)).ok).toBe(false);
@@ -96,7 +122,7 @@ describe('IndexedDB persistence', () => {
     const data = await createRepository(db).load();
     expect(data.periods).toHaveLength(1);
     expect(data.periods[0].anchor).toBe('2026-10-19');
-    expect(data.settings).toEqual({ theme: 'dark', timeFormat: '24h' });
+    expect(data.settings).toEqual({ theme: 'dark', timeFormat: '24h', language: 'en' });
     expect(data.overrides).toEqual([]);
   });
 
@@ -113,7 +139,7 @@ describe('IndexedDB persistence', () => {
     const repo = createRepository(db);
     await repo.replaceAll(createBackup(sample).data);
     const exported = serializeBackup(await repo.load());
-    await repo.replaceAll({ settings: { theme: 'dark', timeFormat: '24h' }, periods: [createDefaultPeriod()], overrides: [], confirmations: [] });
+    await repo.replaceAll({ settings: { theme: 'dark', timeFormat: '24h', language: 'en' }, periods: [createDefaultPeriod()], overrides: [], confirmations: [] });
     expect((await repo.load()).overrides).toHaveLength(0);
     const parsed = parseBackup(exported);
     if (!parsed.ok) throw new Error('parse failed');
@@ -134,11 +160,12 @@ describe('IndexedDB persistence', () => {
     const repo = createRepository(db);
     await repo.saveOverride({ date: '2026-11-01', shift: null, updatedAt: 1 });
     await repo.saveConfirmation({ month: '2026-11', confirmedAt: 2, needsReview: false });
-    await repo.saveSettings({ theme: 'system', timeFormat: '24h' });
+    await repo.saveSettings({ theme: 'system', timeFormat: '24h', language: 'hr' });
     let d = await repo.load();
     expect(d.overrides).toHaveLength(1);
     expect(d.confirmations).toHaveLength(1);
     expect(d.settings.theme).toBe('system');
+    expect(d.settings.language).toBe('hr');
     await repo.deleteOverride('2026-11-01');
     await repo.deleteConfirmation('2026-11');
     d = await repo.load();
