@@ -3,22 +3,23 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
 
-// Version shown in the app: major.minor from package.json, patch = number of commits, plus the
-// short commit hash. It rises automatically with every commit; bump major/minor by hand.
-function git(args: string): string | null {
+// Version shown in the app: major.minor from package.json, patch = commits since package.json's
+// version was last edited (so bumping major/minor resets it to 0), plus the short commit hash.
+function git(...args: string[]): string | null {
   try {
-    return execSync(`git ${args}`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    return execFileSync('git', args, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || null;
   } catch {
     return null;
   }
 }
 const [major, minor] = pkg.version.split('.');
-const commitCount = git('rev-list --count HEAD');
-const commitHash = git('rev-parse --short HEAD');
-const appVersion = commitCount ? `${major}.${minor}.${commitCount}${commitHash ? ` (${commitHash})` : ''}` : pkg.version;
+const versionCommit = git('log', '-G"version"', '--format=%H', '-n', '1', '--', 'package.json');
+const sinceBump = versionCommit ? git('rev-list', '--count', `${versionCommit}..HEAD`) : null;
+const commitHash = git('rev-parse', '--short', 'HEAD');
+const appVersion = sinceBump ? `${major}.${minor}.${sinceBump}${commitHash ? ` (${commitHash})` : ''}` : pkg.version;
 
 // GitHub Pages serves project sites from /<repo-name>/. The deploy workflow sets
 // BASE_PATH from the repository name; the fallback matches a repo called "shiftly".
