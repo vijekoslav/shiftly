@@ -16,7 +16,12 @@ export function TeamsOverview({ team, onSelect }: { team: TeamId; onSelect: (tea
   const schedules = useMemo(() => TEAM_IDS.map((n) => new Schedule([teamPeriod(n)])), []);
 
   return (
-    <section aria-label={t('teams.overview')} className="mb-3 rounded-2xl bg-surface px-3 py-2">
+    <section aria-label={t('teams.overview')} className="relative mb-3 rounded-2xl bg-surface px-3 py-2">
+      {/* Soft highlight over today's column. Translucent so row selection shows through. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-1 left-[calc(0.75rem+4.5rem)] w-[calc((100%-1.5rem-4.5rem)/7)] rounded-xl border border-accent/30 bg-accent/10"
+      />
       <div className="grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] items-center pb-1" aria-hidden>
         <span />
         {dates.map((d, i) => (
