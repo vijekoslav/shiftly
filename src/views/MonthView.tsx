@@ -48,29 +48,29 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col px-3 pb-6 md:grid md:grid-cols-[minmax(0,1fr)_340px] md:gap-6 md:px-6">
       <div className="min-w-0">
-        <header className="flex items-end justify-between px-1 pb-3 pt-2">
-          <div className="min-w-0">
-            <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
-              <span>{monthName(monthDate)}</span>
-              <span className="text-[22px] font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
-            </h1>
+        <header className="px-1 pb-2 pt-2">
+          <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
+            <span>{monthName(monthDate)}</span>
+            <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
+          </h1>
+          <div className="flex items-center justify-between gap-1">
             {team === undefined && <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <button
-              type="button"
-              onClick={goToday}
-              disabled={isCurrent}
-              className="min-h-11 rounded-full px-2 text-[15px] font-medium text-accent transition-opacity disabled:opacity-40"
-            >
-              {t('common.today')}
-            </button>
-            <button type="button" onClick={() => go(-1)} aria-label={t('nav.prevMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
-              <ChevronLeft size={24} />
-            </button>
-            <button type="button" onClick={() => go(1)} aria-label={t('nav.nextMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
-              <ChevronRight size={24} />
-            </button>
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={goToday}
+                disabled={isCurrent}
+                className="min-h-11 rounded-full px-3 text-[15px] font-medium text-accent transition-opacity disabled:opacity-40"
+              >
+                {t('common.today')}
+              </button>
+              <button type="button" onClick={() => go(-1)} aria-label={t('nav.prevMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+                <ChevronLeft size={24} />
+              </button>
+              <button type="button" onClick={() => go(1)} aria-label={t('nav.nextMonth')} className="flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2">
+                <ChevronRight size={24} />
+              </button>
+            </div>
           </div>
         </header>
 
