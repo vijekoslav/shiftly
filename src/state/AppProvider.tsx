@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { createDefaultPeriod, periodEnd, sortPeriods, upsertPeriod } from '../engine/rotation';
 import { addDays, monthEnd } from '../engine/dates';
 import { Schedule } from '../engine/schedule';
+import { teamPeriod, type ScheduleView } from '../engine/teams';
 import type {
   AppData,
   DateKey,
@@ -43,7 +44,13 @@ export interface AppActions {
 
 interface AppContextValue {
   data: AppData;
+  /** The user's own schedule, with their edits. This is the one the editors work on. */
   schedule: Schedule;
+  /** Which schedule the calendar views display. Not persisted. */
+  view: ScheduleView;
+  setView: (view: ScheduleView) => void;
+  /** The schedule being displayed: `schedule` for 'mine', otherwise a team's plain rotation. */
+  viewSchedule: Schedule;
   today: DateKey;
   actions: AppActions;
   /** Set when IndexedDB is unavailable and changes will not survive a reload. */
@@ -259,11 +266,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [commit]);
 
   const schedule = useMemo(() => new Schedule(data.periods, data.overrides), [data.periods, data.overrides]);
+  const [view, setView] = useState<ScheduleView>('mine');
+  const viewSchedule = useMemo(
+    () => (view === 'mine' ? schedule : new Schedule([teamPeriod(view)])),
+    [view, schedule],
+  );
 
   const value = useMemo<AppContextValue>(
     () => ({
       data,
       schedule,
+      view,
+      setView,
+      viewSchedule,
       today,
       actions,
       storageWarning,
@@ -271,7 +286,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         errorListener.current = listener;
       },
     }),
-    [data, schedule, today, actions, storageWarning],
+    [data, schedule, view, viewSchedule, today, actions, storageWarning],
   );
 
   // Nothing meaningful to show until stored data has loaded; this takes a few milliseconds.

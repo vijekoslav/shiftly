@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import { CircleCheck, CircleDashed, TriangleAlert, ChevronLeft, ChevronRight } from 'lucide-react';
 import { addDays, addMonths, monthEnd, monthOf, monthStart, startOfWeek, weekdayIndex } from '../engine/dates';
+import type { TeamId } from '../engine/teams';
 import type { DateKey, DayInfo, MonthKey } from '../engine/types';
 import { ShiftIndicator } from '../components/ShiftIndicator';
 import { DayDetails } from '../components/DayDetails';
 import { MonthStatusSheet } from '../components/MonthStatusSheet';
+import { TeamsOverview } from '../components/TeamsOverview';
 import { useApp, useMonthStatus } from '../state/AppProvider';
 import { formatDate, formatRange, longDate, monthName, monthYear, STATE_LABEL, weekdayName } from '../lib/format';
 import { t } from '../i18n';
@@ -18,9 +20,12 @@ interface Props {
   selectedDate: DateKey;
   onSelectDate: (date: DateKey) => void;
   onEditDate: (date: DateKey) => void;
+  /** Set on the Teams tab: which team is shown, read-only. Absent for the user's own schedule. */
+  team?: TeamId;
+  onTeamChange: (team: TeamId) => void;
 }
 
-export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, onEditDate }: Props) {
+export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, onEditDate, team, onTeamChange }: Props) {
   const { today } = useApp();
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
@@ -49,7 +54,7 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
               <span>{monthName(monthDate)}</span>
               <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
             </h1>
-            <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />
+            {team === undefined && <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />}
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -68,6 +73,8 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
             </button>
           </div>
         </header>
+
+        {team !== undefined && <TeamsOverview team={team} onSelect={onTeamChange} />}
 
         <div className="grid grid-cols-7 gap-1 pb-1.5" aria-hidden>
           {WEEKDAY_KEYS.map((k) => (
@@ -141,7 +148,7 @@ function MonthGrid({
   selectedDate: DateKey;
   onSelect: (date: DateKey) => void;
 }) {
-  const { schedule, today, data } = useApp();
+  const { viewSchedule: schedule, today, data } = useApp();
   const fmt = data.settings.timeFormat;
   const first = startOfWeek(monthStart(month));
   const last = addDays(startOfWeek(monthEnd(month)), 6);

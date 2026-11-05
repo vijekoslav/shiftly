@@ -9,7 +9,7 @@ import { ShiftIndicator, STATE_TEXT_CLASS, STATE_TINT_CLASS } from './ShiftIndic
 
 /** The compact panel under the month grid describing the selected date. */
 export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void }) {
-  const { schedule, data } = useApp();
+  const { viewSchedule: schedule, view, data } = useApp();
   const fmt = data.settings.timeFormat;
   const info = schedule.getDay(date);
   const shift = info.shifts[0];
@@ -22,14 +22,16 @@ export function DayDetails({ date, onEdit }: { date: DateKey; onEdit: () => void
           <h2 className="text-[20px] font-semibold leading-tight">{longDate(date)}</h2>
           <p className="mt-0.5 text-[14px] text-label-2">{weekdayName(date)}</p>
         </div>
-        <button
-          type="button"
-          onClick={onEdit}
-          className="flex min-h-11 items-center gap-1.5 rounded-full bg-surface-2 px-4 text-[15px] font-medium text-accent active:bg-surface-3"
-        >
-          <Pencil size={15} aria-hidden />
-          {t('common.edit')}
-        </button>
+        {view === 'mine' && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="flex min-h-11 items-center gap-1.5 rounded-full bg-surface-2 px-4 text-[15px] font-medium text-accent active:bg-surface-3"
+          >
+            <Pencil size={15} aria-hidden />
+            {t('common.edit')}
+          </button>
+        )}
       </div>
 
       <div className="mt-3 space-y-3">
@@ -94,7 +96,7 @@ function StateBlock({
 }
 
 function OverrideInfo({ info }: { info: DayInfo }) {
-  const { schedule, data } = useApp();
+  const { viewSchedule: schedule, data } = useApp();
   if (!info.override) return null;
   const fmt = data.settings.timeFormat;
   const rotation = info.rotationShift;

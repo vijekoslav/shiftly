@@ -17,6 +17,10 @@ export const en = {
   'common.later': 'Later',
   'common.update': 'Update',
   'common.nextDay': 'next day',
+  'team.n': 'Team {n}',
+  'team.aria': 'Schedule to show',
+  'teams.overview': 'All teams, next 7 days',
+  'teams.todayAria': 'Today: {state}',
 
   // Date and time patterns (date-fns tokens)
   'fmt.longDate': 'MMMM d, yyyy',
@@ -24,8 +28,6 @@ export const en = {
   'fmt.monthName': 'MMMM',
   'fmt.monthYear': 'MMMM yyyy',
   'fmt.historyDate': 'MMM d, yyyy',
-  'fmt.weekFromSame': 'MMM d',
-  'fmt.weekToSame': 'd',
   'fmt.weekShort': 'MMM d',
   'wd.0': 'Mon',
   'wd.1': 'Tue',
@@ -42,14 +44,12 @@ export const en = {
   'state.off': 'Day Off',
 
   // Tabs and navigation
-  'tab.month': 'Month',
-  'tab.week': 'Week',
+  'tab.month': 'My shifts',
+  'tab.teams': 'Teams',
   'tab.settings': 'Settings',
   'nav.primary': 'Primary',
   'nav.prevMonth': 'Previous month',
   'nav.nextMonth': 'Next month',
-  'nav.prevWeek': 'Previous week',
-  'nav.nextWeek': 'Next week',
 
   // App-level banners and toasts
   'app.offline': 'You’re offline. Shiftly keeps working; your data lives on this device.',
@@ -134,20 +134,7 @@ export const en = {
   'toast.changesSaved': 'Changes saved',
   'toast.shiftUpdated': 'Shift updated',
 
-  // Shift details sheet
-  'sd.title': 'Shift',
-  'sd.starts': 'Starts',
-  'sd.ends': 'Ends',
-  'sd.source': 'Source',
-  'sd.sourceEdited': 'Edited manually',
-  'sd.sourceRotation': 'From rotation',
-  'sd.overnight': 'This is one shift that runs past midnight. After it ends you are in recovery on {date}.',
-  'sd.rotationWould': 'The rotation would have {state} {range} here.',
-  'sd.extra': 'This is an extra shift on a day the rotation leaves free.',
 
-  // Week view
-  'week.subtitle': '{year} · Week {n}',
-  'week.shiftAria': '{state}, {startDate} {startTime} to {endDate} {endTime}',
 
   // Settings
   'set.title': 'Settings',

@@ -15,6 +15,10 @@ export const hr: Record<Key, string> = {
   'common.later': 'Kasnije',
   'common.update': 'Ažuriraj',
   'common.nextDay': 'sljedeći dan',
+  'team.n': 'Tim {n}',
+  'team.aria': 'Raspored za prikaz',
+  'teams.overview': 'Svi timovi, sljedećih 7 dana',
+  'teams.todayAria': 'Danas: {state}',
 
   // Date and time patterns
   'fmt.longDate': 'd. MMMM yyyy.',
@@ -22,8 +26,6 @@ export const hr: Record<Key, string> = {
   'fmt.monthName': 'LLLL',
   'fmt.monthYear': 'LLLL yyyy.',
   'fmt.historyDate': 'd. MMM yyyy.',
-  'fmt.weekFromSame': 'd.',
-  'fmt.weekToSame': 'd. MMM',
   'fmt.weekShort': 'd. MMM',
   'wd.0': 'Pon',
   'wd.1': 'Uto',
@@ -40,14 +42,12 @@ export const hr: Record<Key, string> = {
   'state.off': 'Slobodan dan',
 
   // Tabs and navigation
-  'tab.month': 'Mjesec',
-  'tab.week': 'Tjedan',
+  'tab.month': 'Moje smjene',
+  'tab.teams': 'Timovi',
   'tab.settings': 'Postavke',
   'nav.primary': 'Glavna navigacija',
   'nav.prevMonth': 'Prošli mjesec',
   'nav.nextMonth': 'Idući mjesec',
-  'nav.prevWeek': 'Prošli tjedan',
-  'nav.nextWeek': 'Idući tjedan',
 
   // App-level banners and toasts
   'app.offline': 'Nisi na mreži. Shiftly i dalje radi; tvoji podaci nalaze se na ovom uređaju.',
@@ -132,20 +132,7 @@ export const hr: Record<Key, string> = {
   'toast.changesSaved': 'Promjene spremljene',
   'toast.shiftUpdated': 'Smjena ažurirana',
 
-  // Shift details sheet
-  'sd.title': 'Smjena',
-  'sd.starts': 'Početak',
-  'sd.ends': 'Kraj',
-  'sd.source': 'Izvor',
-  'sd.sourceEdited': 'Ručno uređeno',
-  'sd.sourceRotation': 'Iz rotacije',
-  'sd.overnight': 'Ovo je jedna smjena koja traje preko ponoći. Nakon završetka slijedi oporavak, {date}.',
-  'sd.rotationWould': 'Prema rotaciji ovdje bi bilo: {state} {range}.',
-  'sd.extra': 'Ovo je dodatna smjena na dan koji je prema rotaciji slobodan.',
 
-  // Week view
-  'week.subtitle': '{year} · {n}. tjedan',
-  'week.shiftAria': '{state}, {startDate} {startTime} do {endDate} {endTime}',
 
   // Settings
   'set.title': 'Postavke',

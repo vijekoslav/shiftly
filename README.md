@@ -1,7 +1,7 @@
 # Shiftly
 
 A private, iPhone-first shift calendar for rotating 12-hour day and night shifts. It generates your
-repeating schedule, shows it in an Apple-Calendar-style month view and an hourly week view, and lets you
+repeating schedule, shows it in an Apple-Calendar-style month view, and lets you
 adjust individual days without breaking the rotation.
 
 - Installable PWA, works fully offline
@@ -76,14 +76,12 @@ Export a backup now and then.
 
 ## Using the app
 
-- **Month:** swipe or use the arrows to change months. Tap a date for details, **Edit** to change it:
+- **My shifts:** swipe or use the arrows to change months. Tap a date for details, **Edit** to change it:
   Auto (follow the rotation), Day, Night or Off, with custom times and a note. **Restore automatic schedule**
   undoes an edit. Edits affect only that date and never the rotation.
 - **Month status:** tap *Predicted* under the month title to mark the month *Confirmed* after checking the
   official roster. If you edit a confirmed month it shows *review changes* until you confirm it again.
-- **Week:** 24-hour columns with colour blocks sized to the real hours. A night shift appears as two blocks
-  (evening on its start date, morning on the next). Tap either to open the same shift. Empty space is time
-  without scheduled work, not guaranteed free time.
+- **Teams:** the Teams tab shows the default rotation of teams 1–4, read-only. Your own edits only ever apply to the My shifts tab.
 - **Language:** Settings → Appearance → Language switches between English (EN) and Croatian (HR). It changes every
   label, date and month name, and import error messages. Strings live in `src/i18n/en.ts` and `src/i18n/hr.ts`; the
   Croatian file is typed against the English one, so a missing translation fails the build. To add a language, add
@@ -99,7 +97,7 @@ src/
   engine/     Pure scheduling logic. No React, no storage. Dates, rotation periods, overrides, day states.
   storage/    Dexie (IndexedDB) schema, repository, backup file format, validation and migrations.
   state/      React provider connecting engine, storage and UI.
-  views/      Month, Week and Settings screens.
+  views/      Month (also used for Teams) and Settings screens.
   components/ Sheets, controls and the shift indicators.
   lib/        Formatting, hooks, PWA registration, file helpers.
 ```
