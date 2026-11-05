@@ -52,16 +52,16 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
           <div className="min-w-0">
             <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
               <span>{monthName(monthDate)}</span>
-              <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
+              <span className="text-[22px] font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
             </h1>
             {team === undefined && <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
               onClick={goToday}
               disabled={isCurrent}
-              className="min-h-11 rounded-full px-3 text-[15px] font-medium text-accent transition-opacity disabled:opacity-40"
+              className="min-h-11 rounded-full px-2 text-[15px] font-medium text-accent transition-opacity disabled:opacity-40"
             >
               {t('common.today')}
             </button>

@@ -17,7 +17,7 @@ export function TeamsOverview({ team, onSelect }: { team: TeamId; onSelect: (tea
 
   return (
     <section aria-label={t('teams.overview')} className="mb-3 rounded-2xl bg-surface px-3 py-2">
-      <div className="grid grid-cols-[3.5rem_repeat(7,minmax(0,1fr))] items-center pb-1" aria-hidden>
+      <div className="grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] items-center pb-1" aria-hidden>
         <span />
         {dates.map((d, i) => (
           <span
@@ -38,11 +38,11 @@ export function TeamsOverview({ team, onSelect }: { team: TeamId; onSelect: (tea
             onClick={() => onSelect(n)}
             aria-pressed={selected}
             aria-label={`${t('team.n', { n })}. ${t('teams.todayAria', { state: STATE_LABEL[days[0].state] })}`}
-            className={`grid min-h-11 w-full grid-cols-[3.5rem_repeat(7,minmax(0,1fr))] items-center rounded-xl text-left ${
+            className={`grid min-h-11 w-full grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] items-center rounded-xl text-left ${
               selected ? 'bg-surface-2' : ''
             }`}
           >
-            <span className={`pl-2 text-[14px] ${selected ? 'font-semibold' : 'font-medium text-label-2'}`}>
+            <span className={`whitespace-nowrap pl-2 text-[14px] ${selected ? 'font-semibold' : 'font-medium text-label-2'}`}>
               {t('team.n', { n })}
             </span>
             {days.map((info) => (
