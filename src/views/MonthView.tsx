@@ -51,7 +51,7 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
     <div className="mx-auto flex w-full max-w-5xl flex-col px-3 pb-6 md:grid md:grid-cols-[minmax(0,1fr)_340px] md:gap-6 md:px-6">
       <div className="min-w-0">
         <header className="px-1 pb-2 pt-2">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center justify-between gap-2">
             <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
               <span>{monthName(monthDate)}</span>
               <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>

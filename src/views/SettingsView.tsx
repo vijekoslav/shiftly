@@ -80,17 +80,19 @@ export function SettingsView({ onBack }: { onBack?: () => void }) {
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-7 px-4 pb-10 pt-2">
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t('set.back')}
-          className="-ml-2 flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2"
-        >
-          <ArrowLeft size={24} aria-hidden />
-        </button>
-      )}
-      <h1 className="px-1 text-[32px] font-bold leading-tight tracking-tight">{t('set.title')}</h1>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="px-1 text-[32px] font-bold leading-tight tracking-tight">{t('set.title')}</h1>
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label={t('set.back')}
+            className="-mr-1 flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-surface-2"
+          >
+            <ArrowLeft size={24} aria-hidden />
+          </button>
+        )}
+      </div>
 
       {storageWarning && <p className="rounded-2xl bg-warn/10 p-4 text-[14px] text-warn">{storageWarning}</p>}
 
