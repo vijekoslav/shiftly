@@ -147,6 +147,10 @@ export const en = {
   'set.h24': '24-hour',
   'set.h12': '12-hour',
   'set.language': 'Language',
+  'set.back': 'Back',
+  'set.teams': 'Teams',
+  'set.showTeams': 'Show team view',
+  'set.showTeamsFooter': 'Adds a Teams tab with read-only rotations. Turn off for a simpler app without the bottom bar.',
   'set.rotation': 'Rotation',
   'set.rotationFooter':
     'Edits to the current rotation also change past dates. To change the pattern only from a date onward, add a new rotation (handy for summer staffing). Manual changes are never overwritten.',
@@ -290,6 +294,7 @@ export const en = {
   'bk.badTheme': 'Settings: unknown theme.',
   'bk.badTimeFormat': 'Settings: unknown time format.',
   'bk.badLanguage': 'Settings: unknown language.',
+  'bk.badShowTeams': 'Settings: invalid team view option.',
 } as const;
 
 export type Key = keyof typeof en;

@@ -19,7 +19,7 @@ import type {
 export const SCHEMA_VERSION = 1;
 export const BACKUP_APP_ID = 'shiftly';
 
-export const DEFAULT_SETTINGS: AppSettings = { theme: 'dark', timeFormat: '24h', language: 'en' };
+export const DEFAULT_SETTINGS: AppSettings = { theme: 'dark', timeFormat: '24h', language: 'en', showTeams: true };
 
 export interface BackupFile {
   app: typeof BACKUP_APP_ID;
@@ -178,6 +178,9 @@ function validateSettings(value: unknown, errors: string[]): AppSettings | null 
   const timeFormat = value.timeFormat;
   // Backups made before the language option existed have no `language`; they default to English.
   const language = value.language ?? 'en';
+  // Backups made before this option existed have no `showTeams`; the Teams tab stays on.
+  const showTeams = value.showTeams ?? true;
+  if (typeof showTeams !== 'boolean') errors.push(t('bk.badShowTeams'));
   if (theme !== 'system' && theme !== 'dark' && theme !== 'light') errors.push(t('bk.badTheme'));
   if (timeFormat !== '24h' && timeFormat !== '12h') errors.push(t('bk.badTimeFormat'));
   if (language !== 'en' && language !== 'hr') errors.push(t('bk.badLanguage'));
@@ -185,6 +188,7 @@ function validateSettings(value: unknown, errors: string[]): AppSettings | null 
     theme: theme as AppSettings['theme'],
     timeFormat: timeFormat as AppSettings['timeFormat'],
     language: language as AppSettings['language'],
+    showTeams: showTeams as boolean,
   };
 }
 

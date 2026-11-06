@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { ChevronRight, Download, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Download, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { BEGINNING_OF_TIME, periodEnd, periodFor } from '../engine/rotation';
 import { monthStart } from '../engine/dates';
 import { localeTag, t } from '../i18n';
@@ -15,7 +15,7 @@ import { applyUpdate, checkForUpdate, usePWAState } from '../lib/pwa';
 import { parseBackup, type BackupFile } from '../storage/backup';
 import { useApp } from '../state/AppProvider';
 
-export function SettingsView() {
+export function SettingsView({ onBack }: { onBack?: () => void }) {
   const { data, actions, today, storageWarning } = useApp();
   const { toast, confirm } = useUI();
   const pwa = usePWAState();
@@ -80,6 +80,16 @@ export function SettingsView() {
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-7 px-4 pb-10 pt-2">
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label={t('set.back')}
+          className="-ml-2 flex size-11 items-center justify-center rounded-full text-accent active:bg-surface-2"
+        >
+          <ArrowLeft size={24} aria-hidden />
+        </button>
+      )}
       <h1 className="px-1 text-[32px] font-bold leading-tight tracking-tight">{t('set.title')}</h1>
 
       {storageWarning && <p className="rounded-2xl bg-warn/10 p-4 text-[14px] text-warn">{storageWarning}</p>}
@@ -115,6 +125,19 @@ export function SettingsView() {
             ]}
           />
         </div>
+      </Section>
+
+      <Section title={t('set.teams')} footer={t('set.showTeamsFooter')}>
+        <label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 text-[16px]">
+          <span>{t('set.showTeams')}</span>
+          <input
+            type="checkbox"
+            role="switch"
+            checked={data.settings.showTeams}
+            onChange={(e) => actions.setShowTeams(e.target.checked)}
+            className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-surface-3 transition-colors checked:bg-good relative before:absolute before:left-0.5 before:top-0.5 before:size-6 before:rounded-full before:bg-white before:shadow before:transition-transform before:content-[''] checked:before:translate-x-5"
+          />
+        </label>
       </Section>
 
       <Section

@@ -33,6 +33,7 @@ export default function App() {
   // Subscribing here re-renders the whole tree when the language changes.
   useLanguage();
   const tabs = getTabs();
+  const showTeams = data.settings.showTeams;
 
   useTheme(data.settings.theme);
   useConnectivityToasts(toast);
@@ -61,7 +62,7 @@ export default function App() {
       <main
         ref={scroller}
         id="main-scroll"
-        className="scroll-y flex min-h-0 flex-1 flex-col pt-[env(safe-area-inset-top)]"
+        className={`scroll-y flex min-h-0 flex-1 flex-col pt-[env(safe-area-inset-top)] ${showTeams ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}
         aria-label={tabs.find((x) => x.id === tab)?.label}
       >
         <StatusBanners />
@@ -74,12 +75,13 @@ export default function App() {
             onEditDate={setEditDate}
             team={tab === 'teams' ? team : undefined}
             onTeamChange={changeTeam}
+            onOpenSettings={showTeams ? undefined : () => changeTab('settings')}
           />
         </div>
-        {tab === 'settings' && <SettingsView />}
+        {tab === 'settings' && <SettingsView onBack={showTeams ? undefined : () => changeTab('month')} />}
       </main>
 
-      <TabBar tabs={tabs} active={tab} onChange={changeTab} />
+      {showTeams && <TabBar tabs={tabs} active={tab} onChange={changeTab} />}
 
       {editDate && <EditDaySheet date={editDate} onClose={() => setEditDate(null)} />}
     </div>

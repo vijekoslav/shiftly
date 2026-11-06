@@ -35,6 +35,7 @@ export interface AppActions {
   setTheme(theme: ThemePreference): void;
   setTimeFormat(format: TimeFormat): void;
   setLanguage(language: Language): void;
+  setShowTeams(show: boolean): void;
   confirmMonth(month: MonthKey): void;
   unconfirmMonth(month: MonthKey): void;
   exportData(): string;
@@ -224,6 +225,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLanguage(language) {
         setLanguage(language);
         const settings = { ...dataRef.current.settings, language };
+        commit({ ...dataRef.current, settings }, (repo) => repo.saveSettings(settings));
+      },
+
+      setShowTeams(showTeams) {
+        const settings = { ...dataRef.current.settings, showTeams };
         commit({ ...dataRef.current, settings }, (repo) => repo.saveSettings(settings));
       },
 

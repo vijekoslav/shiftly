@@ -8,7 +8,7 @@ import { ShiftlyDB } from './db';
 import { createRepository } from './repository';
 
 const sample: AppData = {
-  settings: { theme: 'light', timeFormat: '12h', language: 'hr' },
+  settings: { theme: 'light', timeFormat: '12h', language: 'hr', showTeams: true },
   periods: [
     createDefaultPeriod(),
     {
@@ -122,7 +122,7 @@ describe('IndexedDB persistence', () => {
     const data = await createRepository(db).load();
     expect(data.periods).toHaveLength(1);
     expect(data.periods[0].anchor).toBe('2026-10-19');
-    expect(data.settings).toEqual({ theme: 'dark', timeFormat: '24h', language: 'en' });
+    expect(data.settings).toEqual({ theme: 'dark', timeFormat: '24h', language: 'en', showTeams: true });
     expect(data.overrides).toEqual([]);
   });
 
@@ -139,7 +139,7 @@ describe('IndexedDB persistence', () => {
     const repo = createRepository(db);
     await repo.replaceAll(createBackup(sample).data);
     const exported = serializeBackup(await repo.load());
-    await repo.replaceAll({ settings: { theme: 'dark', timeFormat: '24h', language: 'en' }, periods: [createDefaultPeriod()], overrides: [], confirmations: [] });
+    await repo.replaceAll({ settings: { theme: 'dark', timeFormat: '24h', language: 'en', showTeams: true }, periods: [createDefaultPeriod()], overrides: [], confirmations: [] });
     expect((await repo.load()).overrides).toHaveLength(0);
     const parsed = parseBackup(exported);
     if (!parsed.ok) throw new Error('parse failed');
@@ -160,7 +160,7 @@ describe('IndexedDB persistence', () => {
     const repo = createRepository(db);
     await repo.saveOverride({ date: '2026-11-01', shift: null, updatedAt: 1 });
     await repo.saveConfirmation({ month: '2026-11', confirmedAt: 2, needsReview: false });
-    await repo.saveSettings({ theme: 'system', timeFormat: '24h', language: 'hr' });
+    await repo.saveSettings({ theme: 'system', timeFormat: '24h', language: 'hr', showTeams: true });
     let d = await repo.load();
     expect(d.overrides).toHaveLength(1);
     expect(d.confirmations).toHaveLength(1);

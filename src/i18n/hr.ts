@@ -145,6 +145,10 @@ export const hr: Record<Key, string> = {
   'set.h24': '24 sata',
   'set.h12': '12 sati',
   'set.language': 'Jezik',
+  'set.teams': 'Timovi',
+  'set.showTeams': 'Prikaži timove',
+  'set.showTeamsFooter': 'Dodaje karticu Timovi s rotacijama samo za čitanje. Isključi za jednostavniju aplikaciju bez donje trake.',
+  'set.back': 'Natrag',
   'set.rotation': 'Rotacija',
   'set.rotationFooter':
     'Uređivanje trenutne rotacije mijenja i prošle datume. Za promjenu obrasca samo od nekog datuma nadalje dodaj novu rotaciju (korisno za ljetni raspored). Ručne izmjene nikad se ne prepisuju.',
@@ -289,4 +293,5 @@ export const hr: Record<Key, string> = {
   'bk.badTheme': 'Postavke: nepoznata tema.',
   'bk.badTimeFormat': 'Postavke: nepoznat format vremena.',
   'bk.badLanguage': 'Postavke: nepoznat jezik.',
+  'bk.badShowTeams': 'Postavke: neispravna opcija prikaza timova.',
 };

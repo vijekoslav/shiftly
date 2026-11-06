@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { CircleCheck, CircleDashed, TriangleAlert, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CircleCheck, CircleDashed, TriangleAlert, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { addDays, addMonths, monthEnd, monthOf, monthStart, startOfWeek, weekdayIndex } from '../engine/dates';
 import type { TeamId } from '../engine/teams';
 import type { DateKey, DayInfo, MonthKey } from '../engine/types';
@@ -23,9 +23,11 @@ interface Props {
   /** Set on the Teams tab: which team is shown, read-only. Absent for the user's own schedule. */
   team?: TeamId;
   onTeamChange: (team: TeamId) => void;
+  /** Set when there is no tab bar: shows a gear button that opens Settings. */
+  onOpenSettings?: () => void;
 }
 
-export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, onEditDate, team, onTeamChange }: Props) {
+export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, onEditDate, team, onTeamChange, onOpenSettings }: Props) {
   const { today } = useApp();
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
@@ -49,10 +51,17 @@ export function MonthView({ month, onMonthChange, selectedDate, onSelectDate, on
     <div className="mx-auto flex w-full max-w-5xl flex-col px-3 pb-6 md:grid md:grid-cols-[minmax(0,1fr)_340px] md:gap-6 md:px-6">
       <div className="min-w-0">
         <header className="px-1 pb-2 pt-2">
-          <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
-            <span>{monthName(monthDate)}</span>
-            <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
-          </h1>
+          <div className="flex items-start justify-between gap-2">
+            <h1 className="flex items-baseline gap-2 text-[32px] font-bold leading-tight tracking-tight">
+              <span>{monthName(monthDate)}</span>
+              <span className="font-semibold text-label-2">{formatDate(monthDate, 'yyyy')}</span>
+            </h1>
+            {onOpenSettings && (
+              <button type="button" onClick={onOpenSettings} aria-label={t('tab.settings')} className="-mr-1 flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-surface-2">
+                <Settings size={24} aria-hidden />
+              </button>
+            )}
+          </div>
           <div className="flex items-center justify-between gap-1">
             {team === undefined && <MonthStatusPill month={month} onClick={() => setStatusOpen(true)} />}
             <div className="ml-auto flex shrink-0 items-center gap-1">

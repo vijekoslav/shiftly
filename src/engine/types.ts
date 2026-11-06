@@ -108,6 +108,8 @@ export interface AppSettings {
   theme: ThemePreference;
   timeFormat: TimeFormat;
   language: Language;
+  /** Show the Teams tab. Off hides the tab bar entirely. */
+  showTeams: boolean;
 }
 
 /** The complete, serialisable state of the app. Storage, backup and future sync all speak this. */
